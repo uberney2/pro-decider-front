@@ -19,6 +19,7 @@ const Login: React.FC = () => {
       try {
         const data: LoginResponse = await login(credentials);
         setToken(data.access_token);
+        localStorage.setItem("access_token", data.access_token);
         navigate("/home");
       } catch (err: any) {
         setError(
