@@ -30,3 +30,19 @@ export async function getDimensionStatus(
       return "Not Defined";
     }
   }
+
+  export async function updateProject(project: Project): Promise<void> {
+    const response = await fetch(`http://localhost:8080/api/project/${project.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(project),
+    });
+  
+    if (!response.ok) {
+      throw new Error("Error updating project");
+    }
+    // Si no hay cuerpo en la respuesta, simplemente retornamos.
+    return;
+  }

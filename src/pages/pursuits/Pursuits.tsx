@@ -7,7 +7,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Project, ProjectStatus } from "../../types/Project";
-import { getProjects } from "../../service/projectService";
+import { getProjects, updateProject } from "../../service/projectService";
 import { DroppableColumn } from "./DroppableColumn"; // Componente de columna (ver ejemplo anterior)
 import { PursuitCard } from "../../components/PursuitCard/PursuitCard";
 
@@ -69,22 +69,33 @@ const PursuitsPage: React.FC = () => {
     setActiveId(event.active.id as string);
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    setActiveId(null);
+    console.log("active:", active.id, "over:", over?.id);
+    setActiveId(null); // Si estás usando activeId para el overlay
+  
     if (!over || active.id === over.id) return;
-
+  
+    // Buscar el proyecto arrastrado
     const activeProject = projects.find((p) => p.id === active.id);
     if (!activeProject) return;
-
-    // over.id es el id del contenedor droppable, que definiremos como el status
-    const newStatus = over.id as ProjectStatus;
+  
+    // over.id es el ID del contenedor droppable, que definimos como el status
+    const newStatus = over.id as Project["status"];
     if (activeProject.status !== newStatus) {
       const updatedProject = { ...activeProject, status: newStatus };
+      // Actualizar el estado local
       setProjects((prev) =>
         prev.map((p) => (p.id === active.id ? updatedProject : p))
       );
-      // Aquí puedes persistir el cambio al backend
+  
+      // Actualizar el backend
+      try {
+        await updateProject(updatedProject);
+      } catch (error: any) {
+        console.error("Error updating project status:", error);
+        // Aquí podrías revertir el cambio local o notificar al usuario
+      }
     }
   };
 
