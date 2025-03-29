@@ -1,0 +1,63 @@
+.container {
+  padding: 1rem;
+  background-color: #fff;
+  min-height: 100vh;
+  font-family: sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.newPursuitButton {
+  background-color: #6f43ff;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.filters {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.filterItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.kanban {
+  display: flex;
+  gap: 1rem;
+}
+
+.column {
+  flex: 1;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.columnTitle {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.columnBody {
+  min-height: 150px; 
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #fff;
+}
+
+  
