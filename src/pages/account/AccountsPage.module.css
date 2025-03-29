@@ -1,0 +1,100 @@
+.container {
+  padding: 1.5rem 2rem;
+  background-color: #fff;
+  color: #333;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.portfolioTitle {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.newAccountButton {
+  background-color: #6f43ff;
+  color: #fff;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.newAccountButton:hover {
+  background-color: #5e3ad1;
+}
+
+.filters {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.filterItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.filterItem label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.filterItem input {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+}
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+
+.table thead {
+  background-color: #f7f7f7;
+  text-align: left;
+}
+
+.table th,
+.table td {
+  padding: 0.8rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.arrowButton {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #6f43ff;
+  font-weight: bold;
+}
+
+.arrowButton:hover {
+  color: #5e3ad1;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  color: #666;
+}
