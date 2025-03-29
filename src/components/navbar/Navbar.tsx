@@ -1,8 +1,21 @@
-import React from "react";
-import { Link } from "react-router-dom";
+// src/components/Navbar.tsx
+import React, { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./Navbar.module.css";
+import { AuthContext } from "../../context/AuthContext";
 
 const Navbar: React.FC = () => {
+  const { token, setAuthData } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Cerrar sesión: borrar datos del contexto y del localStorage
+    setAuthData(null);
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("portfolio");
+    navigate("/");
+  };
+
   return (
     <nav className={styles.navbar}>
       <ul className={styles.navList}>
@@ -21,6 +34,13 @@ const Navbar: React.FC = () => {
             Pursuits
           </Link>
         </li>
+        {token && (
+          <li className={styles.navItem}>
+            <button onClick={handleLogout} className={styles.logoutButton}>
+              Logout
+            </button>
+          </li>
+        )}
       </ul>
     </nav>
   );

@@ -7,6 +7,9 @@ export interface LoginCredentials {
 
 export interface LoginResponse {
   access_token: string;
+  authEmail: string;
+  authId: string;
+  portfolio: { id: string; name: string };
 }
 
 const API_URL = "http://localhost:8080"; // Cambia la URL según tu backend

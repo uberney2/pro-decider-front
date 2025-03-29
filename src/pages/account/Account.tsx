@@ -1,5 +1,5 @@
 // src/pages/AccountsPage.tsx
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useContext } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -10,21 +10,22 @@ import {
 import styles from "./AccountsPage.module.css";
 import { Account } from "../../types/Account";
 import { getAccounts } from "../../service/accountService";
+import { AuthContext } from "../../context/AuthContext";
 
 const AccountsPage: React.FC = () => {
-  // Estado para almacenar todas las cuentas y filtros
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [searchName, setSearchName] = useState("");
   const [searchBuOwner, setSearchBuOwner] = useState("");
   const [searchKeyPeople, setSearchKeyPeople] = useState("");
 
-  // Estado para paginación: pageIndex y pageSize
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
   });
 
-  // Cargar las cuentas desde el servicio al montar el componente
+  // Acceder al portfolio almacenado en AuthContext
+  const { portfolio } = useContext(AuthContext);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -37,7 +38,6 @@ const AccountsPage: React.FC = () => {
     fetchData();
   }, []);
 
-  // Filtrar localmente las cuentas según los filtros ingresados
   const filteredAccounts = useMemo(() => {
     return accounts.filter((acc) => {
       const matchesName = acc.name.toLowerCase().includes(searchName.toLowerCase());
@@ -52,7 +52,6 @@ const AccountsPage: React.FC = () => {
     });
   }, [accounts, searchName, searchBuOwner, searchKeyPeople]);
 
-  // Definir las columnas para la tabla
   const columns = useMemo<ColumnDef<Account, any>[]>(() => [
     {
       accessorKey: "name",
@@ -83,7 +82,6 @@ const AccountsPage: React.FC = () => {
     },
   ], []);
 
-  // Configuración de la tabla, integrando el estado de paginación y el modelo de paginación
   const table = useReactTable({
     data: filteredAccounts,
     columns,
@@ -93,22 +91,19 @@ const AccountsPage: React.FC = () => {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  // Función para ver detalles de la cuenta (puedes redirigir o abrir un modal)
   const handleViewAccount = (accountId: string) => {
     console.log("Ver detalles de la cuenta:", accountId);
   };
 
-  // Función para crear una nueva cuenta
   const handleNewAccount = () => {
     console.log("Crear nueva cuenta");
   };
 
-  // Para mostrar el nombre del portfolio, se asume que todas las cuentas pertenecen al mismo (ajusta si es necesario)
-  const portfolioName = accounts.length > 0 ? accounts[0].portfolio.name : "No Portfolio";
+  // Usar el nombre del portfolio obtenido del AuthContext
+  const portfolioName = portfolio ? portfolio.name : "No Portfolio";
 
   return (
     <div className={styles.container}>
-      {/* Encabezado: Nombre del portfolio y botón para crear nueva cuenta */}
       <header className={styles.header}>
         <h1 className={styles.portfolioTitle}>{portfolioName}</h1>
         <button className={styles.newAccountButton} onClick={handleNewAccount}>
@@ -116,7 +111,6 @@ const AccountsPage: React.FC = () => {
         </button>
       </header>
 
-      {/* Filtros */}
       <div className={styles.filters}>
         <div className={styles.filterItem}>
           <label htmlFor="nameFilter">Filter by name</label>
@@ -150,7 +144,6 @@ const AccountsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Tabla renderizada con react-table */}
       <div className={styles.tableContainer}>
         <table className={styles.table}>
           <thead>
@@ -180,7 +173,6 @@ const AccountsPage: React.FC = () => {
         </table>
       </div>
 
-      {/* Controles de paginación */}
       <div className={styles.pagination}>
         <button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
           Previous
