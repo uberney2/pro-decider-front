@@ -1,3 +1,4 @@
+// src/pages/DroppableColumn.tsx
 import React from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -10,20 +11,14 @@ interface DroppableColumnProps {
   items: Project[];
 }
 
-export const DroppableColumn: React.FC<DroppableColumnProps> = ({
-  status,
-  items,
-}) => {
-  // useDroppable define el área que recibirá el drop
+export const DroppableColumn: React.FC<DroppableColumnProps> = ({ status, items }) => {
   const { setNodeRef } = useDroppable({ id: status });
-
   return (
     <div ref={setNodeRef} className={styles.column}>
       <h2 className={styles.columnTitle}>
         {status} ({items.length})
       </h2>
       <div className={styles.columnBody}>
-        {/* SortableContext agrupa las tarjetas (sortables) dentro de la columna */}
         <SortableContext
           items={items.map((i) => i.id)}
           id={status}

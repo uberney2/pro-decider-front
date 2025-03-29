@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./PursuitsPage.module.css";
-
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
-
+import { DndContext, DragEndEvent, DragStartEvent, DragOverlay } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { Project, ProjectStatus } from "../../types/Project";
 import { getProjects } from "../../service/projectService";
+import { DroppableColumn } from "./DroppableColumn"; // Componente de columna (ver ejemplo anterior)
+import { PursuitCard } from "../../components/PursuitCard/PursuitCard";
 
-import { DroppableColumn } from "./DroppableColumn"; 
-
-// Estados del Kanban
 const KANBAN_STATUSES: ProjectStatus[] = [
   ProjectStatus.OPEN,
   ProjectStatus.PRE_ANALYSIS,
@@ -22,15 +23,15 @@ const PursuitsPage: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [searchName, setSearchName] = useState("");
   const [searchBuOwner, setSearchBuOwner] = useState("");
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
-  // Cargar proyectos al montar
   useEffect(() => {
     (async () => {
       try {
         const data = await getProjects();
-        // Filtra solo los proyectos con un status dentro de KANBAN_STATUSES
+        // Filtramos solo los proyectos cuyo estado esté en nuestro Kanban
         const filtered = data.filter((p) =>
           KANBAN_STATUSES.includes(p.status as ProjectStatus)
         );
@@ -41,7 +42,6 @@ const PursuitsPage: React.FC = () => {
     })();
   }, []);
 
-  // Filtro por nombre y BU Owner
   const filteredProjects = useMemo(() => {
     return projects.filter((p) => {
       const matchesName = p.name
@@ -54,7 +54,6 @@ const PursuitsPage: React.FC = () => {
     });
   }, [projects, searchName, searchBuOwner]);
 
-  // Agrupamos los proyectos por status
   const columnsData = useMemo(() => {
     const result: Record<string, Project[]> = {};
     KANBAN_STATUSES.forEach((status) => {
@@ -66,32 +65,35 @@ const PursuitsPage: React.FC = () => {
     return result;
   }, [filteredProjects]);
 
-  // Manejar Drag End
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    console.log("active:", active.id, "over:", over?.id);
-
+    setActiveId(null);
     if (!over || active.id === over.id) return;
 
-    // Buscamos el proyecto arrastrado
     const activeProject = projects.find((p) => p.id === active.id);
     if (!activeProject) return;
 
-    // over.id será el status (ej: "Open", "Preanalysis", etc.)
+    // over.id es el id del contenedor droppable, que definiremos como el status
     const newStatus = over.id as ProjectStatus;
     if (activeProject.status !== newStatus) {
       const updatedProject = { ...activeProject, status: newStatus };
-      // Actualiza en el estado local
       setProjects((prev) =>
         prev.map((p) => (p.id === active.id ? updatedProject : p))
       );
-      // Aquí podrías hacer un PUT al backend para persistir el cambio de status
+      // Aquí puedes persistir el cambio al backend
     }
   };
 
   const handleNewPursuit = () => {
     console.log("New Pursuit clicked");
   };
+
+  // Renderizamos el overlay: buscamos el proyecto activo y lo renderizamos
+  const activeProject = projects.find((p) => p.id === activeId) || null;
 
   return (
     <div className={styles.container}>
@@ -123,19 +125,18 @@ const PursuitsPage: React.FC = () => {
         </div>
       </div>
 
-      <DndContext onDragEnd={handleDragEnd}>
+      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className={styles.kanban}>
           {KANBAN_STATUSES.map((status) => {
             const items = columnsData[status];
             return (
-              <DroppableColumn
-                key={status}
-                status={status}
-                items={items}
-              />
+              <DroppableColumn key={status} status={status} items={items} />
             );
           })}
         </div>
+        <DragOverlay>
+          {activeProject ? <PursuitCard project={activeProject} /> : null}
+        </DragOverlay>
       </DndContext>
     </div>
   );
