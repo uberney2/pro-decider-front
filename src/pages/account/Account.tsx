@@ -1,22 +1,30 @@
+// src/pages/AccountsPage.tsx
 import React, { useState, useEffect, useMemo } from "react";
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
   ColumnDef,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import styles from "./AccountsPage.module.css";
 import { Account } from "../../types/Account";
 import { getAccounts } from "../../service/accountService";
 
 const AccountsPage: React.FC = () => {
-  // Estado para almacenar las cuentas y los filtros
+  // Estado para almacenar todas las cuentas y filtros
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [searchName, setSearchName] = useState("");
   const [searchBuOwner, setSearchBuOwner] = useState("");
   const [searchKeyPeople, setSearchKeyPeople] = useState("");
 
-  // Llamada al servicio para traer las cuentas al montar el componente
+  // Estado para paginación: pageIndex y pageSize
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  // Cargar las cuentas desde el servicio al montar el componente
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -29,15 +37,11 @@ const AccountsPage: React.FC = () => {
     fetchData();
   }, []);
 
-  // Filtrado local de cuentas según los inputs
+  // Filtrar localmente las cuentas según los filtros ingresados
   const filteredAccounts = useMemo(() => {
     return accounts.filter((acc) => {
-      const matchesName = acc.name
-        .toLowerCase()
-        .includes(searchName.toLowerCase());
-      const matchesBuOwner = acc.buOwner.name
-        .toLowerCase()
-        .includes(searchBuOwner.toLowerCase());
+      const matchesName = acc.name.toLowerCase().includes(searchName.toLowerCase());
+      const matchesBuOwner = acc.buOwner.name.toLowerCase().includes(searchBuOwner.toLowerCase());
       const matchesKey =
         searchKeyPeople === "" ||
         (acc.keyPeople &&
@@ -48,7 +52,7 @@ const AccountsPage: React.FC = () => {
     });
   }, [accounts, searchName, searchBuOwner, searchKeyPeople]);
 
-  // Definir las columnas de la tabla
+  // Definir las columnas para la tabla
   const columns = useMemo<ColumnDef<Account, any>[]>(() => [
     {
       accessorKey: "name",
@@ -61,9 +65,7 @@ const AccountsPage: React.FC = () => {
     },
     {
       accessorFn: (row) =>
-        row.keyPeople && row.keyPeople.length > 0
-          ? row.keyPeople.join(", ")
-          : "—",
+        row.keyPeople && row.keyPeople.length > 0 ? row.keyPeople.join(", ") : "—",
       id: "keyPeople",
       header: "Key People",
     },
@@ -81,31 +83,32 @@ const AccountsPage: React.FC = () => {
     },
   ], []);
 
-  // Crear la instancia de react-table
+  // Configuración de la tabla, integrando el estado de paginación y el modelo de paginación
   const table = useReactTable({
     data: filteredAccounts,
     columns,
+    state: { pagination },
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
-  // Funciones de acción
+  // Función para ver detalles de la cuenta (puedes redirigir o abrir un modal)
   const handleViewAccount = (accountId: string) => {
-    // Aquí rediriges o abres un modal con el detalle de la cuenta
     console.log("Ver detalles de la cuenta:", accountId);
   };
 
+  // Función para crear una nueva cuenta
   const handleNewAccount = () => {
-    // Aquí rediriges o abres el formulario para crear una nueva cuenta
     console.log("Crear nueva cuenta");
   };
 
-  // Se asume que todas las cuentas pertenecen a un mismo portfolio; si hay varios, se debe ajustar.
-  const portfolioName =
-    accounts.length > 0 ? accounts[0].portfolio.name : "No Portfolio";
+  // Para mostrar el nombre del portfolio, se asume que todas las cuentas pertenecen al mismo (ajusta si es necesario)
+  const portfolioName = accounts.length > 0 ? accounts[0].portfolio.name : "No Portfolio";
 
   return (
     <div className={styles.container}>
-      {/* Encabezado: Portfolio y botón para crear nueva cuenta */}
+      {/* Encabezado: Nombre del portfolio y botón para crear nueva cuenta */}
       <header className={styles.header}>
         <h1 className={styles.portfolioTitle}>{portfolioName}</h1>
         <button className={styles.newAccountButton} onClick={handleNewAccount}>
@@ -125,7 +128,6 @@ const AccountsPage: React.FC = () => {
             placeholder="Search by Account Name"
           />
         </div>
-
         <div className={styles.filterItem}>
           <label htmlFor="buFilter">Filter by BU Owner</label>
           <input
@@ -136,7 +138,6 @@ const AccountsPage: React.FC = () => {
             placeholder="Search by BU Owner"
           />
         </div>
-
         <div className={styles.filterItem}>
           <label htmlFor="kpFilter">Filter by Key People</label>
           <input
@@ -149,34 +150,28 @@ const AccountsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Tabla usando @tanstack/react-table */}
+      {/* Tabla renderizada con react-table */}
       <div className={styles.tableContainer}>
         <table className={styles.table}>
           <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
+                {headerGroup.headers.map(header => (
                   <th key={header.id}>
                     {header.isPlaceholder
                       ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                      : flexRender(header.column.columnDef.header, header.getContext())}
                   </th>
                 ))}
               </tr>
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => (
+            {table.getRowModel().rows.map(row => (
               <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
+                {row.getVisibleCells().map(cell => (
                   <td key={cell.id}>
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext()
-                    )}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
               </tr>
@@ -185,9 +180,27 @@ const AccountsPage: React.FC = () => {
         </table>
       </div>
 
-      {/* Paginación (placeholder) */}
+      {/* Controles de paginación */}
       <div className={styles.pagination}>
-        <span>1 2 3 ...</span>
+        <button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+          Previous
+        </button>
+        <span>
+          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+        </span>
+        <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+          Next
+        </button>
+        <select
+          value={table.getState().pagination.pageSize}
+          onChange={(e) => table.setPageSize(Number(e.target.value))}
+        >
+          {[10, 20, 30, 40, 50].map(pageSize => (
+            <option key={pageSize} value={pageSize}>
+              Show {pageSize}
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   );
