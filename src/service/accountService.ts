@@ -24,3 +24,20 @@ export async function createAccount(account: Account): Promise<void> {
   
     return;
   }
+
+  export async function updateAccount(account: Account): Promise<void> {
+    const response = await fetch(`http://localhost:8080/api/accounts/${account.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(account),
+    });
+  
+    if (!response.ok) {
+      throw new Error("Error updating account");
+    }
+    
+    // Si el endpoint no retorna data, simplemente retornamos
+    return;
+  }

@@ -75,7 +75,7 @@ const AccountsPage: React.FC = () => {
       cell: ({ row }) => (
         <button
           className={styles.arrowButton}
-          onClick={() => handleViewAccount(row.original.id)}
+          onClick={() => handleViewAccount(row.original)}
         >
           &gt;
         </button>
@@ -92,8 +92,9 @@ const AccountsPage: React.FC = () => {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const handleViewAccount = (accountId: string) => {
-    console.log("Ver detalles de la cuenta:", accountId);
+  const handleViewAccount = (account: Account) => {
+    // Navega a la ruta de edición, pasando la cuenta completa en state
+    navigate(`/accounts/${account.id}`, { state: { account } });
   };
 
   const navigate = useNavigate();
