@@ -1,8 +1,7 @@
 export interface BuOwner {
     id: string;
     name: string;
-    createdAt: string;
-    updatedAt: string;
+    
   }
   
   export interface Portfolio {
@@ -16,10 +15,10 @@ export interface BuOwner {
     buOwner: BuOwner;
     portfolio: Portfolio;
     status: string;
-    keyPeople: any[];  
-    salesforceLink: string;
-    pcsLink: string;
-    strategy: string;
-    createdAt: string;
-    updatedAt: string;
+    keyPeople?: any[];  
+    salesforceLink?: string;
+    pcsLink?: string;
+    strategy?: string;
+    createdAt?: string;
+    updatedAt?: string;
   }

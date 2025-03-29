@@ -11,6 +11,7 @@ import styles from "./AccountsPage.module.css";
 import { Account } from "../../types/Account";
 import { getAccounts } from "../../service/accountService";
 import { AuthContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const AccountsPage: React.FC = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -95,8 +96,9 @@ const AccountsPage: React.FC = () => {
     console.log("Ver detalles de la cuenta:", accountId);
   };
 
+  const navigate = useNavigate();
   const handleNewAccount = () => {
-    console.log("Crear nueva cuenta");
+    navigate("/accounts/new");
   };
 
   // Usar el nombre del portfolio obtenido del AuthContext

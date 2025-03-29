@@ -1,0 +1,118 @@
+/* src/pages/AccountCreatePage.module.css */
+.container {
+    padding: 1.5rem 2rem;
+    background-color: #fff;
+    color: #333;
+    min-height: 100vh;
+    font-family: "Arial", sans-serif;
+  }
+  
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .tab {
+    background-color: transparent;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+  
+  .tab:hover {
+    border-bottom: 2px solid #ccc;
+  }
+  
+  .activeTab {
+    border-bottom: 2px solid #000;
+  }
+  
+  /* Sección Título */
+  .sectionTitle {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Formulario */
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  
+  .label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #555;
+  }
+  
+  .input,
+  .select {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .textarea {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-size: 1rem;
+    resize: vertical;
+  }
+  
+  .error {
+    color: red;
+    margin-top: -0.5rem;
+    font-weight: 500;
+  }
+  
+  /* Botones */
+  .buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+  }
+  
+  .cancelButton {
+    background-color: transparent;
+    color: #555;
+    border: 1px solid #ccc;
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .cancelButton:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .saveButton {
+    background-color: #6f43ff;
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .saveButton:hover {
+    background-color: #5e3ad1;
+  }
+  

@@ -9,9 +9,7 @@ export const getAccounts = async (): Promise<Account[]> => {
   return data;
 };
 
-export async function createAccount(
-    account: Omit<Account, "id">
-  ): Promise<Account> {
+export async function createAccount(account: Account): Promise<void> {
     const response = await fetch("http://localhost:8080/api/accounts", {
       method: "POST",
       headers: {
@@ -24,6 +22,5 @@ export async function createAccount(
       throw new Error("Error creating account");
     }
   
-    const data: Account = await response.json();
-    return data;
+    return;
   }

@@ -7,6 +7,7 @@ import Accounts from "./pages/account/Account";
 import Pursuits from "./pages/pursuits/Pursuits"; 
 import ProtectedLayout from "./pages/ProtectedLayout/protectedLayout";
 import { AuthProvider } from "./context/AuthContext";
+import AccountCreatePage from "./pages/account/create-account/AccountCreatePage";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -18,6 +19,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/home" element={<Home />} />
             <Route path="/accounts" element={<Accounts />} />
             <Route path="/pursuits" element={<Pursuits />} />
+            <Route path="/accounts/new" element={<AccountCreatePage />} />
           </Route>
         </Routes>
       </BrowserRouter>
