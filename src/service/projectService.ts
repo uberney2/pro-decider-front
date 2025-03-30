@@ -1,4 +1,5 @@
 import { Project, DimensionStatus } from "../types/Project";
+import { TeamDimension } from "../types/TeamDimension";
 
 export async function getProjects(): Promise<Project[]> {
   const response = await fetch("http://localhost:8080/api/project");
@@ -13,7 +14,7 @@ export async function getDimensionStatus(
     dimension: "plan" | "team" | "process" | "qa" | "gut"
   ): Promise<DimensionStatus> {
     try {
-      const response = await fetch(`/api/project/${projectId}/${dimension}`);
+      const response = await fetch(`http://localhost:8080/api/project/${projectId}/${dimension}`);
       // Si la respuesta no es ok, retorna "Not Defined"
       if (!response.ok) {
         return "Not Defined";
@@ -24,7 +25,7 @@ export async function getDimensionStatus(
         return "Not Defined";
       }
       const data = await response.json();
-      return data;
+      return data.status;
     } catch (error) {
       console.error(`Error fetching ${dimension} for project ${projectId}:`, error);
       return "Not Defined";
@@ -60,5 +61,22 @@ export async function getDimensionStatus(
       throw new Error("Error creating project");
     }
     // Si el backend no retorna nada, no llamamos a response.json()
+    return;
+  }
+
+  //=====================================Dimension secction=============================================================
+
+  export async function createTeamDimension(projectId: string, team: TeamDimension): Promise<void> {
+    const response = await fetch(`http://localhost:8080/api/project/${projectId}/team`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(team),
+    });
+  
+    if (!response.ok) {
+      throw new Error("Error creating team dimension");
+    }
     return;
   }
