@@ -4,6 +4,13 @@ export interface Project {
     id: string;
     account: Account;
     name: string;
+    fullTimeEmployees?: string;
+    averageBillingRate?: string;
+    totalHours?: string;
+    closingProbability?: string;
+    latamRevenue?: string;
+    latamParticipationPercentage?: string;
+    activeEmployees?: string;
     gmPercentage?: string;
     totalSOW?: string;
     contractType?: string;
@@ -11,14 +18,12 @@ export interface Project {
     pursuitStartDate?: string;
     pursuitEndDate?: string;
     statusChangeDate?: string;
-    createdAt?: string;
-    updatedAt?: string;
     responsibleFromLatam?: string[];
-    status: ProjectStatus;
-    additionalBackground?: string | null;
-    onboardingProcess?: string | null;
-    servicesScope?: string | null;
-    levelOfAccount?: string | null;
+    status: string;
+    additionalBackground?: string;
+    onboardingProcess?: string;
+    servicesScope?: string;
+    levelOfAccount?: string;
   }
   
   

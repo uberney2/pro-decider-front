@@ -46,3 +46,19 @@ export async function getDimensionStatus(
     // Si no hay cuerpo en la respuesta, simplemente retornamos.
     return;
   }
+
+  export async function createProject(project: Project): Promise<void> {
+    const response = await fetch("http://localhost:8080/api/project", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(project),
+    });
+  
+    if (!response.ok) {
+      throw new Error("Error creating project");
+    }
+    // Si el backend no retorna nada, no llamamos a response.json()
+    return;
+  }

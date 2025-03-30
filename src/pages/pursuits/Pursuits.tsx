@@ -100,7 +100,7 @@ const PursuitsPage: React.FC = () => {
   };
 
   const handleNewPursuit = () => {
-    console.log("New Pursuit clicked");
+    navigate("/pursuits/new");
   };
 
   // Renderizamos el overlay: buscamos el proyecto activo y lo renderizamos
