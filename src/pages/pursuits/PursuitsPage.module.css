@@ -1,4 +1,3 @@
-/* src/pages/PursuitsPage.module.css */
 .container {
   padding: 1rem;
   background-color: #fff;
@@ -54,7 +53,7 @@
 }
 
 .columnBody {
-  min-height: 150px; 
+  min-height: 800px;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -63,4 +62,9 @@
   border: 1px solid #ddd;
   border-radius: 6px;
   background-color: #fff;
+}
+
+.dragOverlay {
+  /* Opcional: estilos para el overlay */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }

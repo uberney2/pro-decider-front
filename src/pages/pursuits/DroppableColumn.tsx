@@ -12,7 +12,9 @@ interface DroppableColumnProps {
 }
 
 export const DroppableColumn: React.FC<DroppableColumnProps> = ({ status, items }) => {
+  // Define el área droppable para la columna usando el status como id
   const { setNodeRef } = useDroppable({ id: status });
+  
   return (
     <div ref={setNodeRef} className={styles.column}>
       <h2 className={styles.columnTitle}>

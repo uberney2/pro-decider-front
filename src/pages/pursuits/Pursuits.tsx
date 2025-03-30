@@ -1,14 +1,11 @@
+// src/pages/PursuitsPage.tsx
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./PursuitsPage.module.css";
 import { DndContext, DragEndEvent, DragStartEvent, DragOverlay } from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { Project, ProjectStatus } from "../../types/Project";
 import { getProjects, updateProject } from "../../service/projectService";
-import { DroppableColumn } from "./DroppableColumn"; // Componente de columna (ver ejemplo anterior)
+import { Project, ProjectStatus } from "../../types/Project";
+import { DroppableColumn } from "./DroppableColumn";
 import { PursuitCard } from "../../components/PursuitCard/PursuitCard";
 
 const KANBAN_STATUSES: ProjectStatus[] = [
@@ -31,9 +28,9 @@ const PursuitsPage: React.FC = () => {
     (async () => {
       try {
         const data = await getProjects();
-        // Filtramos solo los proyectos cuyo estado esté en nuestro Kanban
+        // Filtramos solo los proyectos con estado en KANBAN_STATUSES
         const filtered = data.filter((p) =>
-          KANBAN_STATUSES.includes(p.status as ProjectStatus)
+          KANBAN_STATUSES.includes(p.status.trim() as ProjectStatus)
         );
         setProjects(filtered);
       } catch (err) {
@@ -44,9 +41,7 @@ const PursuitsPage: React.FC = () => {
 
   const filteredProjects = useMemo(() => {
     return projects.filter((p) => {
-      const matchesName = p.name
-        .toLowerCase()
-        .includes(searchName.toLowerCase());
+      const matchesName = p.name.toLowerCase().includes(searchName.toLowerCase());
       const matchesBuOwner = p.account.buOwner.name
         .toLowerCase()
         .includes(searchBuOwner.toLowerCase());
@@ -54,13 +49,20 @@ const PursuitsPage: React.FC = () => {
     });
   }, [projects, searchName, searchBuOwner]);
 
+  // Agrupar proyectos por estado (normalizando el estado con trim)
   const columnsData = useMemo(() => {
     const result: Record<string, Project[]> = {};
     KANBAN_STATUSES.forEach((status) => {
       result[status] = [];
     });
     filteredProjects.forEach((p) => {
-      result[p.status].push(p);
+      const normalizedStatus = p.status.trim();
+      if (!result[normalizedStatus]) {
+        console.warn(`Status "${p.status}" not recognized. Assigning to "Open".`);
+        result["Open"].push(p);
+      } else {
+        result[normalizedStatus].push(p);
+      }
     });
     return result;
   }, [filteredProjects]);
@@ -71,30 +73,23 @@ const PursuitsPage: React.FC = () => {
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    console.log("active:", active.id, "over:", over?.id);
-    setActiveId(null); // Si estás usando activeId para el overlay
-  
+    setActiveId(null);
     if (!over || active.id === over.id) return;
-  
-    // Buscar el proyecto arrastrado
+
     const activeProject = projects.find((p) => p.id === active.id);
     if (!activeProject) return;
-  
-    // over.id es el ID del contenedor droppable, que definimos como el status
-    const newStatus = over.id as Project["status"];
-    if (activeProject.status !== newStatus) {
+
+    // over.id es el id del contenedor droppable, que definimos como el status
+    const newStatus = (over.id as string).trim() as ProjectStatus;
+    if (activeProject.status.trim() !== newStatus) {
       const updatedProject = { ...activeProject, status: newStatus };
-      // Actualizar el estado local
       setProjects((prev) =>
         prev.map((p) => (p.id === active.id ? updatedProject : p))
       );
-  
-      // Actualizar el backend
       try {
         await updateProject(updatedProject);
-      } catch (error: any) {
-        console.error("Error updating project status:", error);
-        // Aquí podrías revertir el cambio local o notificar al usuario
+      } catch (err: any) {
+        console.error("Error updating project status:", err);
       }
     }
   };
@@ -103,7 +98,7 @@ const PursuitsPage: React.FC = () => {
     navigate("/pursuits/new");
   };
 
-  // Renderizamos el overlay: buscamos el proyecto activo y lo renderizamos
+  // Proyecto activo para el DragOverlay
   const activeProject = projects.find((p) => p.id === activeId) || null;
 
   return (
@@ -146,7 +141,7 @@ const PursuitsPage: React.FC = () => {
           })}
         </div>
         <DragOverlay>
-          {activeProject ? <PursuitCard project={activeProject} /> : null}
+          {activeProject ? <div className={styles.dragOverlay}><PursuitCard project={activeProject} /></div> : null}
         </DragOverlay>
       </DndContext>
     </div>
