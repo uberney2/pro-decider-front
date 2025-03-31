@@ -1,3 +1,4 @@
+import { PlanDimension } from "../types/PlanDimension";
 import { Project, DimensionStatus } from "../types/Project";
 import { TeamDimension } from "../types/TeamDimension";
 
@@ -77,6 +78,21 @@ export async function getDimensionStatus(
   
     if (!response.ok) {
       throw new Error("Error creating team dimension");
+    }
+    return;
+  }
+
+  export async function createPlanDimension(projectId: string, plan: PlanDimension): Promise<void> {
+    const response = await fetch(`http://localhost:8080/api/project/${projectId}/plan`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(plan),
+    });
+  
+    if (!response.ok) {
+      throw new Error("Error creating plan dimension");
     }
     return;
   }

@@ -29,10 +29,9 @@ const NewPursuitPageContainer: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.tabs}>
         <button
-          className={`${styles.tab} ${
-            (currentTab === "details" || location.pathname === "/pursuits/new") &&
+          className={`${styles.tab} ${(currentTab === "details" || location.pathname === "/pursuits/new") &&
             styles.activeTab
-          }`}
+            }`}
           onClick={() => handleTabClick("details")}
         >
           Details
@@ -43,7 +42,10 @@ const NewPursuitPageContainer: React.FC = () => {
         >
           Team
         </button>
-        <button className={styles.tab} disabled>
+        <button
+          className={`${styles.tab} ${currentTab === "plan" && styles.activeTab}`}
+          onClick={() => handleTabClick("plan")}
+        >
           Plan
         </button>
         <button className={styles.tab} disabled>

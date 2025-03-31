@@ -13,6 +13,7 @@ import NewPursuitPage from "./pages/pursuits/create-pursuit/NewPursuitPageContai
 import NewPursuitDetailsForm from "./pages/pursuits/NewPursuitDetailsForm/NewPursuitDetailsForm";
 import TeamDimensionPage from "./pages/pursuits/TeamDimensionPage/TeamDimensionPage";
 import NewPursuitPageContainer from "./pages/pursuits/create-pursuit/NewPursuitPageContainer";
+import PlanDimensionPage from "./pages/pursuits/PlanDimensionPage/PlanDimensionPage";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -31,6 +32,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               <Route index element={<NewPursuitDetailsForm />} />
               <Route path="details" element={<NewPursuitDetailsForm />} />
               <Route path="team" element={<TeamDimensionPage />} />
+              <Route path="plan" element={<PlanDimensionPage />} />
               {/* Otras pestañas se podrán agregar luego */}
             </Route>
           </Route>
