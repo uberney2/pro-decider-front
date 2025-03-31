@@ -54,7 +54,10 @@ const NewPursuitPageContainer: React.FC = () => {
         >
           Process
         </button>
-        <button className={styles.tab} disabled>
+        <button
+          className={`${styles.tab} ${currentTab === "qa" && styles.activeTab}`}
+          onClick={() => handleTabClick("qa")}
+        >
           QA
         </button>
         <button className={styles.tab} disabled>
