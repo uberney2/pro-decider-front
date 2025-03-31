@@ -1,3 +1,4 @@
+import { GutDimension } from "../types/GutDimension";
 import { PlanDimension } from "../types/PlanDimension";
 import { ProcessDimension } from "../types/ProcessDimension";
 import { Project, DimensionStatus } from "../types/Project";
@@ -125,6 +126,21 @@ export async function getDimensionStatus(
   
     if (!response.ok) {
       throw new Error("Error creating QA dimension");
+    }
+    return;
+  }
+
+  export async function createGutDimension(projectId: string, gut: GutDimension): Promise<void> {
+    const response = await fetch(`http://localhost:8080/api/project/${projectId}/gut`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(gut),
+    });
+  
+    if (!response.ok) {
+      throw new Error("Error creating gut dimension");
     }
     return;
   }
