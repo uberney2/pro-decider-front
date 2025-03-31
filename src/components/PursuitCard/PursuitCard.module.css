@@ -1,0 +1,38 @@
+/* src/components/PursuitCard.module.css */
+.card {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    cursor: grab;
+  }
+  
+  .dimensions {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.4rem;
+  }
+  
+  .dimension {
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #fff;
+  }
+  
+  /* Colores según estado */
+  .statusGood {
+    background-color: #28a745;
+  }
+  .statusWarning {
+    background-color: #ffc107;
+    color: #333;
+  }
+  .statusBad {
+    background-color: #dc3545;
+  }
+  .statusUndefined {
+    background-color: #6c757d;
+  }
+  

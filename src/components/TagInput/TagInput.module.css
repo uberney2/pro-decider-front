@@ -1,0 +1,67 @@
+.tagInputWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  
+  /* Etiqueta arriba del campo */
+  .label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #444;
+  }
+  
+  /* Contenedor que simula un input con chips adentro */
+  .tagInputContainer {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  
+    /* Borde estilo "input" */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.4rem;
+    min-height: 2.5rem;
+    cursor: text;
+  }
+  
+  .tagInputContainer:focus-within {
+    border-color: #6f43ff;
+    box-shadow: 0 0 0 2px rgba(111, 67, 255, 0.2);
+  }
+  
+  /* Cada chip */
+  .chip {
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    padding: 0.3rem 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .chip button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    color: #888;
+  }
+  
+  .chip button:hover {
+    color: #333;
+  }
+  
+  /* El input real */
+  .tagInput {
+    border: none;
+    outline: none;
+    flex: 1;
+    min-width: 60px;
+    font-size: 1rem;
+    /* Evitar salto de línea */
+    white-space: nowrap;
+  }
+  
