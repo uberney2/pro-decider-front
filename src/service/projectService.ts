@@ -1,4 +1,5 @@
 import { PlanDimension } from "../types/PlanDimension";
+import { ProcessDimension } from "../types/ProcessDimension";
 import { Project, DimensionStatus } from "../types/Project";
 import { TeamDimension } from "../types/TeamDimension";
 
@@ -93,6 +94,21 @@ export async function getDimensionStatus(
   
     if (!response.ok) {
       throw new Error("Error creating plan dimension");
+    }
+    return;
+  }
+
+  export async function createProcessDimension(projectId: string, process: ProcessDimension): Promise<void> {
+    const response = await fetch(`http://localhost:8080/api/project/${projectId}/process`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(process),
+    });
+  
+    if (!response.ok) {
+      throw new Error("Error creating process dimension");
     }
     return;
   }
