@@ -5,49 +5,48 @@ import { v4 as uuidv4 } from "uuid";
 import styles from "./TeamDimensionPage.module.css";
 import { createTeamDimension } from "../../../service/projectService";
 import { TeamDimension } from "../../../types/TeamDimension";
+import { OutletContextProps } from "../create-pursuit/NewPursuitPageContainer";
 
-const STATUS_OPTIONS = ["Good", "Warning", "Bad", "Not Defined"];
-
-interface OutletContextProps {
-  projectId?: string;
-}
+const STATUS_OPTIONS: Array<"Good" | "Warning" | "Bad" | "Not Defined"> = [
+  "Good",
+  "Warning",
+  "Bad",
+  "Not Defined",
+];
 
 const TeamDimensionPage: React.FC = () => {
-  const { projectId } = useOutletContext<OutletContextProps>();
+  const { projectId, teamData, setTeamData } = useOutletContext<OutletContextProps>();
   const navigate = useNavigate();
 
-  if (!projectId) {
-    return <div className={styles.error}>Project ID not found.</div>;
-  }
-
-  const [composition, setComposition] = useState("");
-  const [teamConfiguration, setTeamConfiguration] = useState("");
-  const [englishLevel, setEnglishLevel] = useState("");
-  const [deployDate, setDeployDate] = useState("");
-  const [status, setStatus] = useState("Not Defined");
-  const [observations, setObservations] = useState("");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    setMessage("");
+
+    if (!projectId) {
+      setError("Project ID not found.");
+      return;
+    }
 
     const dimensionId = uuidv4();
     const newTeamDimension: TeamDimension = {
       id: dimensionId,
-      composition,
-      teamConfiguration,
-      englishLevel,
-      observations,
-      deployDate: deployDate
-        ? new Date(deployDate).toISOString()
+      composition: teamData.composition,
+      teamConfiguration: teamData.teamConfiguration,
+      englishLevel: teamData.englishLevel,
+      observations: teamData.observations,
+      deployDate: teamData.deployDate
+        ? new Date(teamData.deployDate).toISOString()
         : new Date().toISOString(),
-      status: status as "Good" | "Warning" | "Bad" | "Not Defined",
+      status: teamData.status as "Good" | "Warning" | "Bad" | "Not Defined",
     };
 
     try {
       await createTeamDimension(projectId, newTeamDimension);
-      navigate("/pursuits");
+      setMessage("Team dimension saved successfully. You can continue editing this dimension or add another.");
     } catch (err: any) {
       setError("Error creating team dimension: " + err.message);
     }
@@ -60,36 +59,37 @@ const TeamDimensionPage: React.FC = () => {
   return (
     <div className={styles.container}>
       <h2 className={styles.sectionTitle}>Team Dimension</h2>
+      {message && <p className={styles.success}>{message}</p>}
       <form onSubmit={handleSubmit} className={styles.form}>
         <h3 className={styles.subSectionTitle}>Team Composition Risk</h3>
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
             <label>Composition</label>
             <textarea
-              value={composition}
-              onChange={(e) => setComposition(e.target.value)}
+              value={teamData.composition}
+              onChange={(e) => setTeamData({ ...teamData, composition: e.target.value })}
             />
           </div>
           <div className={styles.formGroup}>
             <label>Team Configuration</label>
             <textarea
-              value={teamConfiguration}
-              onChange={(e) => setTeamConfiguration(e.target.value)}
+              value={teamData.teamConfiguration}
+              onChange={(e) => setTeamData({ ...teamData, teamConfiguration: e.target.value })}
             />
           </div>
           <div className={styles.formGroup}>
             <label>English Level Required</label>
             <textarea
-              value={englishLevel}
-              onChange={(e) => setEnglishLevel(e.target.value)}
+              value={teamData.englishLevel}
+              onChange={(e) => setTeamData({ ...teamData, englishLevel: e.target.value })}
             />
           </div>
           <div className={styles.formGroup}>
             <label>Expected Deploy Date</label>
             <input
               type="date"
-              value={deployDate}
-              onChange={(e) => setDeployDate(e.target.value)}
+              value={teamData.deployDate}
+              onChange={(e) => setTeamData({ ...teamData, deployDate: e.target.value })}
             />
           </div>
         </div>
@@ -98,8 +98,8 @@ const TeamDimensionPage: React.FC = () => {
           <div className={styles.formGroup}>
             <label>Team Status</label>
             <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              value={teamData.status}
+              onChange={(e) => setTeamData({ ...teamData, status: e.target.value })}
             >
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt} value={opt}>
@@ -111,8 +111,8 @@ const TeamDimensionPage: React.FC = () => {
           <div className={styles.formGroup}>
             <label>Team Observations</label>
             <textarea
-              value={observations}
-              onChange={(e) => setObservations(e.target.value)}
+              value={teamData.observations}
+              onChange={(e) => setTeamData({ ...teamData, observations: e.target.value })}
             />
           </div>
         </div>
