@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/login/Login";
 import Home from "./pages/Home/Home";
 import Accounts from "./pages/account/Account"; 
@@ -32,7 +32,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/accounts/:accountId" element={<AccountEditPage />} />
             {/* Rutas anidadas para crear un Pursuit */}
             <Route path="/pursuits/new/*" element={<NewPursuitPageContainer />}>
-              <Route index element={<NewPursuitDetailsForm />} />
+            <Route index element={<Navigate to="details" replace />} />
               <Route path="details" element={<NewPursuitDetailsForm />} />
               <Route path="team" element={<TeamDimensionPage />} />
               <Route path="plan" element={<PlanDimensionPage />} />

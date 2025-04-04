@@ -1,70 +1,35 @@
 // src/pages/pursuits/create-pursuit/NewPursuitDetailsForm.tsx
-import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useContext } from "react";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./NewPursuitPage.module.css";
-
-// Servicios
 import { getBuOwners } from "../../../service/buOwnerService";
 import { getAccounts } from "../../../service/accountService";
 import { createProject } from "../../../service/projectService";
-
-// Tipos
 import { Account, BuOwner } from "../../../types/Account";
 import { TagInput } from "../../../components/TagInput/TagInput";
-
-// Constantes para dropdowns
-const CONTACT_TYPES = ["Time & Materials", "Fixed Fee"];
-const PURSUIT_TYPES = ["pursuit", "project"];
-const PURSUIT_STATUS = [
-  "Open",
-  "Preanalysis",
-  "Engineering Review",
-  "In Validation",
-  "Cancelled",
-];
-
 import { AuthContext } from "../../../context/AuthContext";
 import { Project } from "../../../types/Project";
+import { DetailsData } from "../../../types/DetailsData";
+import { OutletContextProps } from "./NewPursuitPageContainer";
+
+const CONTACT_TYPES = ["Time & Materials", "Fixed Fee"];
+const PURSUIT_TYPES = ["pursuit", "project"];
+const PURSUIT_STATUS = ["Open", "Preanalysis", "Engineering Review", "In Validation", "Cancelled"];
 
 const NewPursuitDetailsForm: React.FC = () => {
   const navigate = useNavigate();
+  const { setProjectId, detailsData, setDetailsData } = useOutletContext<OutletContextProps>();
   const { portfolio } = useContext(AuthContext);
 
-  const [buOwners, setBuOwners] = useState<BuOwner[]>([]);
-  const [accounts, setAccounts] = useState<Account[]>([]);
-
-  // BU & Financial Information
-  const [primarySalesBU, setPrimarySalesBU] = useState("");
-  const [gmPercentage, setGmPercentage] = useState("");
-  const [totalSOW, setTotalSOW] = useState("");
-  const [selectedAccountId, setSelectedAccountId] = useState("");
-  const [contactType, setContactType] = useState(CONTACT_TYPES[0]);
-
-  // Pursuit Data
-  const [pursuitName, setPursuitName] = useState("");
-  const [contactTags, setContactTags] = useState<string[]>([]);
-  const [pursuitStartDate, setPursuitStartDate] = useState("");
-  const [responsibleTags, setResponsibleTags] = useState<string[]>([]);
-  const [pursuitKind, setPursuitKind] = useState(PURSUIT_TYPES[0]);
-  const [status, setStatus] = useState(PURSUIT_STATUS[0]);
-  const [pursuitEndDate, setPursuitEndDate] = useState("");
-  const [securityProcedures, setSecurityProcedures] = useState("");
-  const [onboardingProcess, setOnboardingProcess] = useState("");
-  const [scopeServices, setScopeServices] = useState("");
-  const [levelOfAccountUncertainty, setLevelOfAccountUncertainty] = useState("");
-  const [fullTimeEmployees, setFullTimeEmployees] = useState("");
-  const [averageBillingRate, setAverageBillingRate] = useState("");
-  const [totalHours, setTotalHours] = useState("");
-  const [error, setError] = useState("");
+  const [buOwners, setBuOwners] = React.useState<BuOwner[]>([]);
+  const [accounts, setAccounts] = React.useState<Account[]>([]);
+  const [error, setError] = React.useState("");
 
   useEffect(() => {
     (async () => {
       try {
-        const [buData, accountData] = await Promise.all([
-          getBuOwners(),
-          getAccounts(),
-        ]);
+        const [buData, accountData] = await Promise.all([getBuOwners(), getAccounts()]);
         setBuOwners(buData);
         setAccounts(accountData);
       } catch (err: any) {
@@ -73,36 +38,32 @@ const NewPursuitDetailsForm: React.FC = () => {
     })();
   }, []);
 
+  const handleChange = (field: keyof DetailsData, value: string) => {
+    setDetailsData({ ...detailsData, [field]: value });
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
-    const buSelected = buOwners.find((bu) => bu.id === primarySalesBU);
-    const accountSelected = accounts.find((acc) => acc.id === selectedAccountId);
-
-    if (!buSelected) {
-      setError("Please select a valid Primary Sales BU.");
-      return;
-    }
-    if (!accountSelected) {
-      setError("Please select a valid Account.");
-      return;
-    }
     if (!portfolio) {
-      setError("No portfolio information found. Please log in again.");
+      alert("No portfolio information found. Please log in again.");
       return;
     }
 
     const generatedProjectId = uuidv4();
 
+    const accountSelected = accounts.find((acc) => acc.id === detailsData.accountId);
+    const buSelected = buOwners.find((bu) => bu.id === detailsData.buOwnerId);
+
     const newProject: Project = {
       id: generatedProjectId,
       account: {
-        id: accountSelected.id,
-        name: accountSelected.name,
+        id: detailsData.accountId,
+        name: accountSelected ? accountSelected.name : "",
         buOwner: {
-          id: buSelected.id,
-          name: buSelected.name,
+          id: detailsData.buOwnerId,
+          name: buSelected ? buSelected.name : "",
         },
         portfolio: {
           id: portfolio.id,
@@ -113,34 +74,38 @@ const NewPursuitDetailsForm: React.FC = () => {
         pcsLink: "https://pcs.example.com/cuenta",
         strategy: "Default strategy",
       },
-      name: pursuitName,
-      fullTimeEmployees: fullTimeEmployees,
-      averageBillingRate: averageBillingRate,
-      totalHours: totalHours,
+      name: detailsData.pursuitName,
+      gmPercentage: detailsData.gmPercentage,
+      totalSOW: detailsData.totalSOW,
+      fullTimeEmployees: detailsData.fullTimeEmployees,
+      averageBillingRate: detailsData.averageBillingRate,
+      totalHours: detailsData.totalHours,
       closingProbability: "",
       latamRevenue: "",
       latamParticipationPercentage: "",
       activeEmployees: "",
-      gmPercentage: gmPercentage,
-      totalSOW: totalSOW,
-      contractType: contactType,
-      usaPointOfContact: contactTags.join(", "),
-      pursuitStartDate: pursuitStartDate,
-      pursuitEndDate: pursuitEndDate,
-      status: status,
+      contractType: detailsData.contractType,
+      usaPointOfContact: detailsData.usaPointOfContact,
+      pursuitStartDate: detailsData.pursuitStartDate,
+      pursuitEndDate: detailsData.pursuitEndDate,
+      status: detailsData.status,
       statusChangeDate: new Date().toISOString(),
-      additionalBackground: securityProcedures,
-      onboardingProcess: onboardingProcess,
-      servicesScope: scopeServices,
-      levelOfAccount: levelOfAccountUncertainty,
-      responsibleFromLatam: responsibleTags,
+      additionalBackground: detailsData.additionalBackground,
+      onboardingProcess: detailsData.onboardingProcess,
+      servicesScope: detailsData.servicesScope,
+      levelOfAccount: detailsData.levelOfAccount,
+      responsibleFromLatam: detailsData.responsibleFromLatam
+        ? detailsData.responsibleFromLatam.split(", ")
+        : [],
+      // No se envía pursuitKind ya que Project no lo define.
     };
 
     try {
       await createProject(newProject);
-      // Navega a la pestaña Team para continuar con las dimensiones
+      setProjectId(generatedProjectId);
       navigate("/pursuits/new/team", { state: { projectId: generatedProjectId } });
     } catch (err: any) {
+      console.error("Error creating project:", err);
       setError("Error creating project: " + err.message);
     }
   };
@@ -156,8 +121,8 @@ const NewPursuitDetailsForm: React.FC = () => {
         <div className={styles.formGroup}>
           <label>Primary sales BU</label>
           <select
-            value={primarySalesBU}
-            onChange={(e) => setPrimarySalesBU(e.target.value)}
+            value={detailsData.primarySalesBU}
+            onChange={(e) => handleChange("primarySalesBU", e.target.value)}
             required
           >
             <option value="">-- Select BU --</option>
@@ -172,23 +137,23 @@ const NewPursuitDetailsForm: React.FC = () => {
           <label>GM Percentage</label>
           <input
             type="text"
-            value={gmPercentage}
-            onChange={(e) => setGmPercentage(e.target.value)}
+            value={detailsData.gmPercentage}
+            onChange={(e) => handleChange("gmPercentage", e.target.value)}
           />
         </div>
         <div className={styles.formGroup}>
           <label>Total SOW</label>
           <input
             type="text"
-            value={totalSOW}
-            onChange={(e) => setTotalSOW(e.target.value)}
+            value={detailsData.totalSOW}
+            onChange={(e) => handleChange("totalSOW", e.target.value)}
           />
         </div>
         <div className={styles.formGroup}>
           <label>Account name</label>
           <select
-            value={selectedAccountId}
-            onChange={(e) => setSelectedAccountId(e.target.value)}
+            value={detailsData.accountId}
+            onChange={(e) => handleChange("accountId", e.target.value)}
             required
           >
             <option value="">-- Select Account --</option>
@@ -202,8 +167,8 @@ const NewPursuitDetailsForm: React.FC = () => {
         <div className={styles.formGroup}>
           <label>Contact Type</label>
           <select
-            value={contactType}
-            onChange={(e) => setContactType(e.target.value)}
+            value={detailsData.contractType}
+            onChange={(e) => handleChange("contractType", e.target.value)}
             required
           >
             {CONTACT_TYPES.map((type) => (
@@ -221,16 +186,16 @@ const NewPursuitDetailsForm: React.FC = () => {
           <label>Pursuit name</label>
           <input
             type="text"
-            value={pursuitName}
-            onChange={(e) => setPursuitName(e.target.value)}
+            value={detailsData.pursuitName}
+            onChange={(e) => handleChange("pursuitName", e.target.value)}
             required
           />
         </div>
         <div className={styles.formGroup}>
           <TagInput
             label="Contact"
-            tags={contactTags}
-            setTags={setContactTags}
+            tags={detailsData.usaPointOfContact ? detailsData.usaPointOfContact.split(", ") : []}
+            setTags={(tags) => handleChange("usaPointOfContact", tags.join(", "))}
             placeholder="Press Enter to add contact"
           />
         </div>
@@ -238,8 +203,8 @@ const NewPursuitDetailsForm: React.FC = () => {
           <label>Pursuit Start Date</label>
           <input
             type="date"
-            value={pursuitStartDate}
-            onChange={(e) => setPursuitStartDate(e.target.value)}
+            value={detailsData.pursuitStartDate}
+            onChange={(e) => handleChange("pursuitStartDate", e.target.value)}
             required
           />
         </div>
@@ -249,16 +214,16 @@ const NewPursuitDetailsForm: React.FC = () => {
         <div className={styles.formGroup}>
           <TagInput
             label="Responsible"
-            tags={responsibleTags}
-            setTags={setResponsibleTags}
+            tags={detailsData.responsibleFromLatam ? detailsData.responsibleFromLatam.split(", ") : []}
+            setTags={(tags) => handleChange("responsibleFromLatam", tags.join(", "))}
             placeholder="Press Enter to add responsible"
           />
         </div>
         <div className={styles.formGroup}>
           <label>Type</label>
           <select
-            value={pursuitKind}
-            onChange={(e) => setPursuitKind(e.target.value)}
+            value={detailsData.pursuitKind}
+            onChange={(e) => handleChange("pursuitKind", e.target.value)}
             required
           >
             {PURSUIT_TYPES.map((t) => (
@@ -271,8 +236,8 @@ const NewPursuitDetailsForm: React.FC = () => {
         <div className={styles.formGroup}>
           <label>Status</label>
           <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
+            value={detailsData.status}
+            onChange={(e) => handleChange("status", e.target.value)}
             required
           >
             {PURSUIT_STATUS.map((s) => (
@@ -286,8 +251,8 @@ const NewPursuitDetailsForm: React.FC = () => {
           <label>Pursuit End Date</label>
           <input
             type="date"
-            value={pursuitEndDate}
-            onChange={(e) => setPursuitEndDate(e.target.value)}
+            value={detailsData.pursuitEndDate}
+            onChange={(e) => handleChange("pursuitEndDate", e.target.value)}
           />
         </div>
       </div>
@@ -296,15 +261,17 @@ const NewPursuitDetailsForm: React.FC = () => {
         <div className={styles.formGroup}>
           <label>Are there any security procedures, additional background checks, or similar?</label>
           <textarea
-            value={securityProcedures}
-            onChange={(e) => setSecurityProcedures(e.target.value)}
+            value={detailsData.additionalBackground}
+            onChange={(e) => handleChange("additionalBackground", e.target.value)}
           />
         </div>
         <div className={styles.formGroup}>
-          <label>What’s the onboarding process, tools, and timing to staff people to the team? (licences, VPN, Access, etc)</label>
+          <label>
+            What’s the onboarding process, tools, and timing to staff people to the team? (licences, VPN, Access, etc)
+          </label>
           <textarea
-            value={onboardingProcess}
-            onChange={(e) => setOnboardingProcess(e.target.value)}
+            value={detailsData.onboardingProcess}
+            onChange={(e) => handleChange("onboardingProcess", e.target.value)}
           />
         </div>
       </div>
@@ -313,15 +280,15 @@ const NewPursuitDetailsForm: React.FC = () => {
         <div className={styles.formGroup}>
           <label>Scope of the services</label>
           <textarea
-            value={scopeServices}
-            onChange={(e) => setScopeServices(e.target.value)}
+            value={detailsData.servicesScope}
+            onChange={(e) => handleChange("servicesScope", e.target.value)}
           />
         </div>
         <div className={styles.formGroup}>
           <label>Level of account uncertainty</label>
           <textarea
-            value={levelOfAccountUncertainty}
-            onChange={(e) => setLevelOfAccountUncertainty(e.target.value)}
+            value={detailsData.levelOfAccount}
+            onChange={(e) => handleChange("levelOfAccount", e.target.value)}
           />
         </div>
       </div>
@@ -331,24 +298,24 @@ const NewPursuitDetailsForm: React.FC = () => {
           <label>Full time Employees</label>
           <input
             type="text"
-            value={fullTimeEmployees}
-            onChange={(e) => setFullTimeEmployees(e.target.value)}
+            value={detailsData.fullTimeEmployees}
+            onChange={(e) => handleChange("fullTimeEmployees", e.target.value)}
           />
         </div>
         <div className={styles.formGroup}>
           <label>Average Billing Rate</label>
           <input
             type="text"
-            value={averageBillingRate}
-            onChange={(e) => setAverageBillingRate(e.target.value)}
+            value={detailsData.averageBillingRate}
+            onChange={(e) => handleChange("averageBillingRate", e.target.value)}
           />
         </div>
         <div className={styles.formGroup}>
           <label>Total hours</label>
           <input
             type="text"
-            value={totalHours}
-            onChange={(e) => setTotalHours(e.target.value)}
+            value={detailsData.totalHours}
+            onChange={(e) => handleChange("totalHours", e.target.value)}
           />
         </div>
       </div>
@@ -356,7 +323,7 @@ const NewPursuitDetailsForm: React.FC = () => {
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.buttons}>
-        <button type="button" onClick={handleCancel} className={styles.cancelButton}>
+        <button type="button" onClick={() => navigate("/pursuits")} className={styles.cancelButton}>
           Cancel
         </button>
         <button type="submit" className={styles.saveButton}>

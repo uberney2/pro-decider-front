@@ -1,54 +1,64 @@
-// src/pages/pursuits/create-pursuit/ProcessDimensionPage.tsx
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+// src/pages/pursuits/ProcessDimensionPage/ProcessDimensionPage.tsx
+import React from "react";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./ProcessDimensionPage.module.css";
 import { createProcessDimension } from "../../../service/projectService";
-import { ProcessDimension } from "../../../types/ProcessDimension";
-import { AccountabilityLevelEnum } from "../../../types/ProcessDimension"; // Asegúrate de que la ruta sea la correcta
+import { ProcessDimension, AccountabilityLevelEnum } from "../../../types/ProcessDimension";
+import { OutletContextProps } from "../create-pursuit/NewPursuitPageContainer";
 
-const STATUS_OPTIONS = ["Good", "Warning", "Bad", "Not Defined"];
+const STATUS_OPTIONS: Array<"Good" | "Warning" | "Bad" | "Not Defined"> = [
+  "Good",
+  "Warning",
+  "Bad",
+  "Not Defined",
+];
 
 const ProcessDimensionPage: React.FC = () => {
-  const location = useLocation();
+  // Usamos el Outlet Context para obtener el estado global de processData
+  const { projectId, processData, setProcessData } = useOutletContext<OutletContextProps>();
   const navigate = useNavigate();
+  const [error, setError] = React.useState("");
+  const [message, setMessage] = React.useState("");
 
-  // Extraer projectId del state de navegación
-  const projectId = location.state?.projectId;
   if (!projectId) {
     return <div className={styles.error}>Project ID not found.</div>;
   }
 
-  // Estados para los campos de Process
-  const [stack, setStack] = useState("");
-  const [methodology, setMethodology] = useState("");
-  const [frequencyToDeploy, setFrequencyToDeploy] = useState("");
-  const [latamInfluence, setLatamInfluence] = useState("");
-  const [accountabilityLevel, setAccountabilityLevel] = useState(AccountabilityLevelEnum.RESPONSIBLE_100);
-  const [observations, setObservations] = useState("");
-  const [status, setStatus] = useState("Not Defined");
-  const [error, setError] = useState("");
+  const handleChange = (field: keyof ProcessDimension, value: string) => {
+    setProcessData({ ...processData, [field]: value });
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    setMessage("");
 
     const dimensionId = uuidv4();
     const newProcessDimension: ProcessDimension = {
       id: dimensionId,
-      stack,
-      methodology,
-      frequencyToDeploy,
-      latamInfluence,
-      accountabilityLevel,
-      observations,
-      status: status as "Good" | "Warning" | "Bad" | "Not Defined",
+      stack: processData.stack,
+      methodology: processData.methodology,
+      frequencyToDeploy: processData.frequencyToDeploy,
+      latamInfluence: processData.latamInfluence,
+      accountabilityLevel: processData.accountabilityLevel, // El dropdown se usará para seleccionar una de las opciones del enum
+      observations: processData.observations,
+      status: processData.status as "Good" | "Warning" | "Bad" | "Not Defined",
     };
 
     try {
       await createProcessDimension(projectId, newProcessDimension);
-      // Después de guardar, redirige a la vista principal de pursuits o la siguiente pestaña
-      navigate("/pursuits");
+      setMessage("Process dimension saved successfully. You can continue editing this dimension or add another.");
+      // Si prefieres limpiar los campos para un nuevo ingreso, puedes descomentar lo siguiente:
+      // setProcessData({
+      //   stack: "",
+      //   methodology: "",
+      //   frequencyToDeploy: "",
+      //   latamInfluence: "",
+      //   accountabilityLevel: AccountabilityLevelEnum.RESPONSIBLE_100,
+      //   observations: "",
+      //   status: "Not Defined",
+      // });
     } catch (err: any) {
       setError("Error creating process dimension: " + err.message);
     }
@@ -61,50 +71,50 @@ const ProcessDimensionPage: React.FC = () => {
   return (
     <div className={styles.container}>
       <h2 className={styles.sectionTitle}>Process Dimension</h2>
+      {message && <p className={styles.success}>{message}</p>}
       <form onSubmit={handleSubmit} className={styles.form}>
         <h3 className={styles.subSectionTitle}>Process Description</h3>
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
             <label>Which is the technology stack (back, front, BD, Integration, Testing)</label>
             <textarea
-              value={stack}
-              onChange={(e) => setStack(e.target.value)}
+              value={processData.stack}
+              onChange={(e) => handleChange("stack", e.target.value)}
             />
           </div>
           <div className={styles.formGroup}>
             <label>Agile Methodology and process description</label>
             <textarea
-              value={methodology}
-              onChange={(e) => setMethodology(e.target.value)}
+              value={processData.methodology}
+              onChange={(e) => handleChange("methodology", e.target.value)}
             />
           </div>
           <div className={styles.formGroup}>
             <label>Frequency to deploy</label>
             <textarea
-              value={frequencyToDeploy}
-              onChange={(e) => setFrequencyToDeploy(e.target.value)}
+              value={processData.frequencyToDeploy}
+              onChange={(e) => handleChange("frequencyToDeploy", e.target.value)}
             />
-          </div>
-          {/* Eliminamos el textarea para Accountability Level y lo sustituimos por un dropdown */}
-          <div className={styles.formGroup}>
-            <label>Accountability Level</label>
-            <select
-              value={accountabilityLevel}
-              onChange={(e) => setAccountabilityLevel(e.target.value as AccountabilityLevelEnum)}
-            >
-              {Object.values(AccountabilityLevelEnum).map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
           </div>
           <div className={styles.formGroup}>
             <label>Latam Influence</label>
             <textarea
-              value={latamInfluence}
-              onChange={(e) => setLatamInfluence(e.target.value)}
+              value={processData.latamInfluence}
+              onChange={(e) => handleChange("latamInfluence", e.target.value)}
             />
+          </div>
+          <div className={styles.formGroup}>
+            <label>Accountability Level</label>
+            <select
+              value={processData.accountabilityLevel}
+              onChange={(e) => handleChange("accountabilityLevel", e.target.value)}
+            >
+              {Object.values(AccountabilityLevelEnum).map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -112,7 +122,7 @@ const ProcessDimensionPage: React.FC = () => {
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
             <label>Process Status</label>
-            <select value={status} onChange={(e) => setStatus(e.target.value)}>
+            <select value={processData.status} onChange={(e) => handleChange("status", e.target.value)}>
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
@@ -123,14 +133,13 @@ const ProcessDimensionPage: React.FC = () => {
           <div className={styles.formGroup}>
             <label>Process Observation</label>
             <textarea
-              value={observations}
-              onChange={(e) => setObservations(e.target.value)}
+              value={processData.observations}
+              onChange={(e) => handleChange("observations", e.target.value)}
             />
           </div>
         </div>
 
         {error && <p className={styles.error}>{error}</p>}
-
         <div className={styles.buttons}>
           <button type="button" onClick={handleCancel} className={styles.cancelButton}>
             Cancel

@@ -1,41 +1,49 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+// src/pages/pursuits/create-pursuit/GutDimensionPage.tsx
+import React from "react";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./GutDimensionPage.module.css";
 import { createGutDimension } from "../../../service/projectService";
 import { GutDimension } from "../../../types/GutDimension";
+import { OutletContextProps } from "../create-pursuit/NewPursuitPageContainer";
 
-const STATUS_OPTIONS = ["Good", "Warning", "Bad", "Not Defined"];
+const STATUS_OPTIONS: Array<"Good" | "Warning" | "Bad" | "Not Defined"> = [
+  "Good",
+  "Warning",
+  "Bad",
+  "Not Defined",
+];
 
 const GutDimensionPage: React.FC = () => {
-  const location = useLocation();
+  const { projectId, gutData, setGutData } = useOutletContext<OutletContextProps>();
   const navigate = useNavigate();
+  const [error, setError] = React.useState("");
+  const [message, setMessage] = React.useState("");
 
-  // Extraer projectId del state de navegación
-  const projectId = location.state?.projectId;
   if (!projectId) {
-    return <div className={styles.error}>Project ID not found.</div>;
+    return <div className={styles.error}>Project ID not found. Please create the Pursuit first.</div>;
   }
 
-  const [observations, setObservations] = useState("");
-  const [status, setStatus] = useState("Not Defined");
-  const [error, setError] = useState("");
+  const handleChange = (field: keyof Omit<GutDimension, "id">, value: string) => {
+    setGutData({ ...gutData, [field]: value });
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    setMessage("");
 
     const dimensionId = uuidv4();
     const newGutDimension: GutDimension = {
       id: dimensionId,
-      observations,
-      status: status as "Good" | "Warning" | "Bad" | "Not Defined",
+      observations: gutData.observations,
+      status: gutData.status as "Good" | "Warning" | "Bad" | "Not Defined",
     };
 
     try {
       await createGutDimension(projectId, newGutDimension);
-      // Después de guardar, redirige a la vista principal de pursuits o a la siguiente pestaña
-      navigate("/pursuits");
+      setMessage("Gut dimension saved successfully. You can continue editing this dimension or add another.");
+      // No limpiamos el estado para que los datos persistan
     } catch (err: any) {
       setError("Error creating gut dimension: " + err.message);
     }
@@ -51,11 +59,15 @@ const GutDimensionPage: React.FC = () => {
       <p className={styles.description}>
         In addition to the previous points, how is your feeling of the team's general health? Also consider external factors such as the relationship with the client or other factors that may represent a risk to the health of the project.
       </p>
+      {message && <p className={styles.success}>{message}</p>}
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
             <label>Gut Status</label>
-            <select value={status} onChange={(e) => setStatus(e.target.value)}>
+            <select
+              value={gutData.status}
+              onChange={(e) => handleChange("status", e.target.value)}
+            >
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
@@ -66,14 +78,12 @@ const GutDimensionPage: React.FC = () => {
           <div className={styles.formGroup}>
             <label>Gut Observations</label>
             <textarea
-              value={observations}
-              onChange={(e) => setObservations(e.target.value)}
+              value={gutData.observations}
+              onChange={(e) => handleChange("observations", e.target.value)}
             />
           </div>
         </div>
-
         {error && <p className={styles.error}>{error}</p>}
-
         <div className={styles.buttons}>
           <button type="button" onClick={handleCancel} className={styles.cancelButton}>
             Cancel

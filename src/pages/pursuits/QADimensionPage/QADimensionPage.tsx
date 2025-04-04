@@ -1,54 +1,55 @@
 // src/pages/pursuits/create-pursuit/QADimensionPage.tsx
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React from "react";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./QADimensionPage.module.css";
 import { createQADimension } from "../../../service/projectService";
 import { QADimension } from "../../../types/QADimension";
+import { OutletContextProps } from "../create-pursuit/NewPursuitPageContainer";
 
-const STATUS_OPTIONS = ["Good", "Warning", "Bad", "Not Defined"];
+const STATUS_OPTIONS: Array<"Good" | "Warning" | "Bad" | "Not Defined"> = [
+  "Good",
+  "Warning",
+  "Bad",
+  "Not Defined",
+];
 
 const QADimensionPage: React.FC = () => {
-  const location = useLocation();
+  const { projectId, qaData, setQaData } = useOutletContext<OutletContextProps>();
   const navigate = useNavigate();
+  const [error, setError] = React.useState("");
+  const [message, setMessage] = React.useState("");
 
-  // Extraer projectId del state de navegación
-  const projectId = location.state?.projectId;
   if (!projectId) {
-    return <div className={styles.error}>Project ID not found.</div>;
+    return <div className={styles.error}>Project ID not found. Please create the Pursuit first.</div>;
   }
 
-  // Estados para QA
-  const [currentStatus, setCurrentStatus] = useState("");
-  const [testTools, setTestTools] = useState("");
-  const [automationLevel, setAutomationLevel] = useState("");
-  const [manualProcess, setManualProcess] = useState(false);
-  const [automatedProcess, setAutomatedProcess] = useState(false);
-
-  const [observations, setObservations] = useState("");
-  const [status, setStatus] = useState("Not Defined");
-  const [error, setError] = useState("");
+  const handleChange = (field: keyof QADimension, value: string | boolean) => {
+    setQaData({ ...qaData, [field]: value });
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    setMessage("");
 
     const dimensionId = uuidv4();
     const newQADimension: QADimension = {
       id: dimensionId,
-      currentStatus,
-      testTools,
-      automationLevel,
-      manualProcess,
-      automatedProcess,
-      observations,
-      status: status as "Good" | "Warning" | "Bad" | "Not Defined",
+      currentStatus: qaData.currentStatus,
+      testTools: qaData.testTools,
+      automationLevel: qaData.automationLevel,
+      manualProcess: qaData.manualProcess,
+      automatedProcess: qaData.automatedProcess,
+      observations: qaData.observations,
+      status: qaData.status as "Good" | "Warning" | "Bad" | "Not Defined",
     };
 
     try {
       await createQADimension(projectId, newQADimension);
-      // Después de guardar, redirige a la vista principal o la siguiente pestaña
-      navigate("/pursuits");
+      setMessage("QA dimension saved successfully. You can continue editing this dimension or add another.");
+      // Si se desea limpiar el estado para nuevos datos, se podría:
+      // setQaData({ currentStatus: "", testTools: "", automationLevel: "", manualProcess: false, automatedProcess: false, observations: "", status: "Not Defined" });
     } catch (err: any) {
       setError("Error creating QA dimension: " + err.message);
     }
@@ -61,40 +62,43 @@ const QADimensionPage: React.FC = () => {
   return (
     <div className={styles.container}>
       <h2 className={styles.sectionTitle}>Pursuit QA</h2>
+      {message && <p className={styles.success}>{message}</p>}
       <form onSubmit={handleSubmit} className={styles.form}>
-        <h3 className={styles.subSectionTitle}>QA composition risk</h3>
+        <h3 className={styles.subSectionTitle}>QA Composition Risk</h3>
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
             <label>What is the current status for QA?</label>
             <textarea
-              value={currentStatus}
-              onChange={(e) => setCurrentStatus(e.target.value)}
+              value={qaData.currentStatus}
+              onChange={(e) => handleChange("currentStatus", e.target.value)}
             />
           </div>
           <div className={styles.formGroup}>
-            <label>Are there existing tools for defect management, test cases management code management, also automation?</label>
+            <label>Are there existing tools for defect management, test cases management, code management, also automation?</label>
             <textarea
-              value={testTools}
-              onChange={(e) => setTestTools(e.target.value)}
+              value={qaData.testTools}
+              onChange={(e) => handleChange("testTools", e.target.value)}
             />
           </div>
           <div className={styles.formGroup}>
             <label>What is the automation level? (based on the QA Pyramid)</label>
             <textarea
-              value={automationLevel}
-              onChange={(e) => setAutomationLevel(e.target.value)}
+              value={qaData.automationLevel}
+              onChange={(e) => handleChange("automationLevel", e.target.value)}
             />
           </div>
         </div>
 
-        <h3 className={styles.subSectionTitle}>About QA Process <small>(Both can be picked if necessary)</small></h3>
+        <h3 className={styles.subSectionTitle}>
+          About QA Process <small>(Both can be picked if necessary)</small>
+        </h3>
         <div className={styles.formRow}>
           <div className={styles.formGroupCheckbox}>
             <label>
               <input
                 type="checkbox"
-                checked={manualProcess}
-                onChange={(e) => setManualProcess(e.target.checked)}
+                checked={qaData.manualProcess}
+                onChange={(e) => handleChange("manualProcess", e.target.checked)}
               />
               Manual
             </label>
@@ -103,8 +107,8 @@ const QADimensionPage: React.FC = () => {
             <label>
               <input
                 type="checkbox"
-                checked={automatedProcess}
-                onChange={(e) => setAutomatedProcess(e.target.checked)}
+                checked={qaData.automatedProcess}
+                onChange={(e) => handleChange("automatedProcess", e.target.checked)}
               />
               Automation
             </label>
@@ -115,7 +119,7 @@ const QADimensionPage: React.FC = () => {
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
             <label>QA Status</label>
-            <select value={status} onChange={(e) => setStatus(e.target.value)}>
+            <select value={qaData.status} onChange={(e) => handleChange("status", e.target.value)}>
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
@@ -126,8 +130,8 @@ const QADimensionPage: React.FC = () => {
           <div className={styles.formGroup}>
             <label>QA Observation</label>
             <textarea
-              value={observations}
-              onChange={(e) => setObservations(e.target.value)}
+              value={qaData.observations}
+              onChange={(e) => handleChange("observations", e.target.value)}
             />
           </div>
         </div>
