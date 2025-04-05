@@ -4,7 +4,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Project, ProjectStatus } from "../../types/Project";
 import styles from "./PursuitsPage.module.css";
-import { SortablePursuitCard } from "./SortablePursuitCard";
+import  SortablePursuitCard  from "./SortablePursuitCard";
 
 interface DroppableColumnProps {
   status: ProjectStatus;

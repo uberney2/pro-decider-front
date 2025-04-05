@@ -4,17 +4,17 @@ import styles from "./PursuitCard.module.css";
 import { Project } from "../../types/Project";
 import { getDimensionStatus } from "../../service/projectService";
 
+export interface PursuitCardProps {
+  project: Project;
+  onEdit: (projectId: string) => void;
+}
+
 interface DimensionsState {
   team: string;
   plan: string;
   process: string;
   qa: string;
-  gut: string; // También se llama "Get Feeling"
-}
-
-interface PursuitCardProps {
-  project: Project;
-  onEdit: (projectId: string) => void;
+  gut: string;
 }
 
 const PursuitCard: React.FC<PursuitCardProps> = ({ project, onEdit }) => {
@@ -57,14 +57,27 @@ const PursuitCard: React.FC<PursuitCardProps> = ({ project, onEdit }) => {
     }
   };
 
-  // Se utiliza statusChangeDate en lugar de updatedAt
   const lastUpdated = project.statusChangeDate
     ? new Date(project.statusChangeDate).toLocaleDateString()
     : "N/A";
 
   return (
     <div className={styles.card}>
-      <div className={styles.editIcon} onClick={() => onEdit(project.id)} title="Edit Pursuit">
+      {/* Botón de edición */}
+      <button
+        type="button"
+        className={styles.editIcon}
+        onMouseDown={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          onEdit(project.id);
+        }}
+        draggable={false}
+      >
         <svg
           width="24"
           height="24"
@@ -78,14 +91,16 @@ const PursuitCard: React.FC<PursuitCardProps> = ({ project, onEdit }) => {
         >
           <path d="M9 18l6-6-6-6" />
         </svg>
-      </div>
+      </button>
 
       <div className={styles.infoSection}>
         <h3 className={styles.pursuitName}>{project.name}</h3>
         <p className={styles.accountName}>{project.account.name}</p>
         <p className={styles.portfolioName}>{project.account.portfolio.name}</p>
         <p className={styles.contactLabel}>Contact</p>
-        <p className={styles.contactName}>{project.usaPointOfContact || "No contact"}</p>
+        <p className={styles.contactName}>
+          {project.usaPointOfContact || "No contact"}
+        </p>
       </div>
 
       <div className={styles.dimensionsSection}>
