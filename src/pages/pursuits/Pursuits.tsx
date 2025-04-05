@@ -6,7 +6,7 @@ import { DndContext, DragEndEvent, DragStartEvent, DragOverlay } from "@dnd-kit/
 import { getProjects, updateProject } from "../../service/projectService";
 import { Project, ProjectStatus } from "../../types/Project";
 import { DroppableColumn } from "./DroppableColumn";
-import { PursuitCard } from "../../components/PursuitCard/PursuitCard";
+import PursuitCard from "../../components/PursuitCard/PursuitCard";
 
 const KANBAN_STATUSES: ProjectStatus[] = [
   ProjectStatus.OPEN,
@@ -141,7 +141,16 @@ const PursuitsPage: React.FC = () => {
           })}
         </div>
         <DragOverlay>
-          {activeProject ? <div className={styles.dragOverlay}><PursuitCard project={activeProject} /></div> : null}
+          {activeProject ? (
+            <div className={styles.dragOverlay}>
+              <PursuitCard
+                project={activeProject}
+                onEdit={(projectId: string) => {
+                  navigate(`/pursuits/edit/${projectId}`);
+                }}
+              />
+            </div>
+          ) : null}
         </DragOverlay>
       </DndContext>
     </div>
