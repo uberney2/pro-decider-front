@@ -1,25 +1,51 @@
-// src/pages/pursuits/create-pursuit/TeamDimensionPage.tsx
-import React, { useState } from "react";
+// src/pages/pursuits/TeamDimensionPage/TeamDimensionPage.tsx
+import React, { useState, useEffect } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./TeamDimensionPage.module.css";
-import { createTeamDimension } from "../../../service/projectService";
+import { 
+  getTeamDimension, 
+  createTeamDimension, 
+  updateTeamDimension 
+} from "../../../service/projectService";
 import { TeamDimension } from "../../../types/TeamDimension";
-import { OutletContextProps } from "../create-pursuit/NewPursuitPageContainer";
+import { OutletContextProps } from "../edit-pursuit/EditPursuitPageContainer";
 
-const STATUS_OPTIONS: Array<"Good" | "Warning" | "Bad" | "Not Defined"> = [
-  "Good",
-  "Warning",
-  "Bad",
-  "Not Defined",
-];
+const STATUS_OPTIONS = ["Good", "Warning", "Bad", "Not Defined"];
 
 const TeamDimensionPage: React.FC = () => {
-  const { projectId, teamData, setTeamData } = useOutletContext<OutletContextProps>();
+  const { projectId } = useOutletContext<OutletContextProps>();
   const navigate = useNavigate();
 
+  const [teamData, setTeamData] = useState<TeamDimension>({
+    id: "",
+    composition: "",
+    teamConfiguration: "",
+    englishLevel: "",
+    deployDate: "",
+    status: "Not Defined",
+    observations: "",
+  });
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (projectId) {
+      getTeamDimension(projectId)
+        .then((data) => {
+          if (data && data.id) {
+            setTeamData(data);
+          }
+        })
+        .catch((err) => {
+          console.warn("No team dimension data found, initializing empty.", err);
+        });
+    }
+  }, [projectId]);
+
+  const handleChange = (field: keyof TeamDimension, value: string) => {
+    setTeamData({ ...teamData, [field]: value });
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,38 +53,35 @@ const TeamDimensionPage: React.FC = () => {
     setMessage("");
 
     if (!projectId) {
-      setError("Project ID not found.");
+      setError("No project ID found.");
       return;
     }
 
-    const dimensionId = uuidv4();
-    const newTeamDimension: TeamDimension = {
-      id: dimensionId,
-      composition: teamData.composition,
-      teamConfiguration: teamData.teamConfiguration,
-      englishLevel: teamData.englishLevel,
-      observations: teamData.observations,
-      deployDate: teamData.deployDate
-        ? new Date(teamData.deployDate).toISOString()
-        : new Date().toISOString(),
-      status: teamData.status as "Good" | "Warning" | "Bad" | "Not Defined",
-    };
-
     try {
-      await createTeamDimension(projectId, newTeamDimension);
-      setMessage("Team dimension saved successfully. You can continue editing this dimension or add another.");
+      if (teamData.id) {
+        await updateTeamDimension(projectId, teamData.id, teamData);
+        setMessage("Team dimension updated successfully.");
+      } else {
+        const newId = uuidv4();
+        const newData: TeamDimension = { ...teamData, id: newId };
+        await createTeamDimension(projectId, newData);
+        setTeamData(newData);
+        setMessage("Team dimension created successfully.");
+      }
     } catch (err: any) {
-      setError("Error creating team dimension: " + err.message);
+      console.error("Error saving team dimension:", err);
+      setError("Error saving team dimension: " + err.message);
     }
   };
 
   const handleCancel = () => {
-    navigate("/pursuits");
+    navigate("/pursuits/edit/" + projectId + "/details", { state: { projectId } });
   };
 
   return (
     <div className={styles.container}>
       <h2 className={styles.sectionTitle}>Team Dimension</h2>
+      {error && <p className={styles.error}>{error}</p>}
       {message && <p className={styles.success}>{message}</p>}
       <form onSubmit={handleSubmit} className={styles.form}>
         <h3 className={styles.subSectionTitle}>Team Composition Risk</h3>
@@ -67,21 +90,21 @@ const TeamDimensionPage: React.FC = () => {
             <label>Composition</label>
             <textarea
               value={teamData.composition}
-              onChange={(e) => setTeamData({ ...teamData, composition: e.target.value })}
+              onChange={(e) => handleChange("composition", e.target.value)}
             />
           </div>
           <div className={styles.formGroup}>
             <label>Team Configuration</label>
             <textarea
               value={teamData.teamConfiguration}
-              onChange={(e) => setTeamData({ ...teamData, teamConfiguration: e.target.value })}
+              onChange={(e) => handleChange("teamConfiguration", e.target.value)}
             />
           </div>
           <div className={styles.formGroup}>
             <label>English Level Required</label>
             <textarea
               value={teamData.englishLevel}
-              onChange={(e) => setTeamData({ ...teamData, englishLevel: e.target.value })}
+              onChange={(e) => handleChange("englishLevel", e.target.value)}
             />
           </div>
           <div className={styles.formGroup}>
@@ -89,7 +112,7 @@ const TeamDimensionPage: React.FC = () => {
             <input
               type="date"
               value={teamData.deployDate}
-              onChange={(e) => setTeamData({ ...teamData, deployDate: e.target.value })}
+              onChange={(e) => handleChange("deployDate", e.target.value)}
             />
           </div>
         </div>
@@ -99,7 +122,7 @@ const TeamDimensionPage: React.FC = () => {
             <label>Team Status</label>
             <select
               value={teamData.status}
-              onChange={(e) => setTeamData({ ...teamData, status: e.target.value })}
+              onChange={(e) => handleChange("status", e.target.value)}
             >
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt} value={opt}>
@@ -112,11 +135,10 @@ const TeamDimensionPage: React.FC = () => {
             <label>Team Observations</label>
             <textarea
               value={teamData.observations}
-              onChange={(e) => setTeamData({ ...teamData, observations: e.target.value })}
+              onChange={(e) => handleChange("observations", e.target.value)}
             />
           </div>
         </div>
-        {error && <p className={styles.error}>{error}</p>}
         <div className={styles.buttons}>
           <button type="button" onClick={handleCancel} className={styles.cancelButton}>
             Cancel

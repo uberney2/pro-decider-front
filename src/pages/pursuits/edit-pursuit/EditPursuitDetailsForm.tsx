@@ -92,16 +92,15 @@ const EditPursuitDetailsForm: React.FC = () => {
     <form onSubmit={handleSubmit} className={styles.form}>
       <h3 className={styles.subSectionTitle}>BU & Financial Information</h3>
       <div className={styles.formRow}>
+        {/* Campo informativo: Primary sales BU */}
         <div className={styles.formGroup}>
           <label>Primary sales BU</label>
-          <select
-            value={detailsData.primarySalesBU}
-            onChange={(e) => handleChange("primarySalesBU", e.target.value)}
-            required
-          >
-            <option value="">-- Select BU --</option>
-            {/* Lista de BU cargada globalmente */}
-          </select>
+          <input type="text" value={detailsData.buOwnerName} readOnly />
+        </div>
+        {/* Campo informativo: Portfolio */}
+        <div className={styles.formGroup}>
+          <label>Portfolio</label>
+          <input type="text" value={portfolio ? portfolio.name : ""} readOnly />
         </div>
         <div className={styles.formGroup}>
           <label>GM Percentage</label>
@@ -121,14 +120,7 @@ const EditPursuitDetailsForm: React.FC = () => {
         </div>
         <div className={styles.formGroup}>
           <label>Account name</label>
-          <select
-            value={detailsData.accountId}
-            onChange={(e) => handleChange("accountId", e.target.value)}
-            required
-          >
-            <option value="">-- Select Account --</option>
-            {/* Lista de cuentas cargada globalmente */}
-          </select>
+          <input type="text" value={detailsData.accountName} readOnly />
         </div>
         <div className={styles.formGroup}>
           <label>Contact Type</label>
@@ -289,11 +281,7 @@ const EditPursuitDetailsForm: React.FC = () => {
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.buttons}>
-        <button
-          type="button"
-          onClick={() => navigate("/pursuits")}
-          className={styles.cancelButton}
-        >
+        <button type="button" onClick={() => navigate("/pursuits")} className={styles.cancelButton}>
           Cancel
         </button>
         <button type="submit" className={styles.saveButton}>

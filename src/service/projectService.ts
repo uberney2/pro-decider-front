@@ -6,6 +6,10 @@ import { ProcessDimension } from "../types/ProcessDimension";
 import { QADimension } from "../types/QADimension";
 import { GutDimension } from "../types/GutDimension";
 
+// ========================
+// Funciones para Proyectos
+// ========================
+
 // Obtiene la lista de proyectos
 export async function getProjects(): Promise<Project[]> {
   const response = await fetch("http://localhost:8080/api/project");
@@ -21,11 +25,10 @@ export async function getProjectById(projectId: string): Promise<Project> {
   if (!response.ok) {
     throw new Error("Error fetching project details");
   }
-  const data: Project = await response.json();
-  return data;
+  return response.json();
 }
 
-// Actualiza un proyecto (detalles)
+// Actualiza un proyecto (PUT)
 export async function updateProject(project: Project): Promise<void> {
   const response = await fetch(`http://localhost:8080/api/project/${project.id}`, {
     method: "PUT",
@@ -40,7 +43,7 @@ export async function updateProject(project: Project): Promise<void> {
   return;
 }
 
-// Crea un proyecto (detalles)
+// Crea un proyecto (POST)
 export async function createProject(project: Project): Promise<void> {
   const response = await fetch("http://localhost:8080/api/project", {
     method: "POST",
@@ -55,7 +58,9 @@ export async function createProject(project: Project): Promise<void> {
   return;
 }
 
-// Obtiene el estado de una dimensión (usado en la tarjeta)
+// ========================
+// Función para obtener el estado de una dimensión (usado en la tarjeta)
+// ========================
 export async function getDimensionStatus(
   projectId: string,
   dimension: "plan" | "team" | "process" | "qa" | "gut"
@@ -70,7 +75,7 @@ export async function getDimensionStatus(
       return "Not Defined";
     }
     const data = await response.json();
-    return data.status; // Se espera que el JSON tenga la propiedad "status"
+    return data.status || "Not Defined";
   } catch (error) {
     console.error(`Error fetching ${dimension} for project ${projectId}:`, error);
     return "Not Defined";
@@ -78,7 +83,51 @@ export async function getDimensionStatus(
 }
 
 // ========================
-// Funciones para crear dimensiones
+// Funciones GET para Dimensiones (para cargar datos en los formularios de edición)
+// ========================
+
+export async function getTeamDimension(projectId: string): Promise<TeamDimension> {
+  const response = await fetch(`http://localhost:8080/api/project/${projectId}/team`);
+  if (!response.ok) {
+    throw new Error("Error fetching team dimension");
+  }
+  return response.json();
+}
+
+export async function getPlanDimension(projectId: string): Promise<PlanDimension> {
+  const response = await fetch(`http://localhost:8080/api/project/${projectId}/plan`);
+  if (!response.ok) {
+    throw new Error("Error fetching plan dimension");
+  }
+  return response.json();
+}
+
+export async function getProcessDimension(projectId: string): Promise<ProcessDimension> {
+  const response = await fetch(`http://localhost:8080/api/project/${projectId}/process`);
+  if (!response.ok) {
+    throw new Error("Error fetching process dimension");
+  }
+  return response.json();
+}
+
+export async function getQADimension(projectId: string): Promise<QADimension> {
+  const response = await fetch(`http://localhost:8080/api/project/${projectId}/qa`);
+  if (!response.ok) {
+    throw new Error("Error fetching QA dimension");
+  }
+  return response.json();
+}
+
+export async function getGutDimension(projectId: string): Promise<GutDimension> {
+  const response = await fetch(`http://localhost:8080/api/project/${projectId}/gut`);
+  if (!response.ok) {
+    throw new Error("Error fetching gut dimension");
+  }
+  return response.json();
+}
+
+// ========================
+// Funciones para crear dimensiones (POST)
 // ========================
 
 export async function createTeamDimension(projectId: string, team: TeamDimension): Promise<void> {
@@ -152,7 +201,7 @@ export async function createGutDimension(projectId: string, gut: GutDimension): 
 }
 
 // ========================
-// Funciones para actualizar dimensiones
+// Funciones para actualizar dimensiones (PUT)
 // ========================
 
 export async function updateTeamDimension(projectId: string, teamId: string, team: TeamDimension): Promise<void> {

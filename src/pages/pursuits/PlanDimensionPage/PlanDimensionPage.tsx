@@ -1,28 +1,42 @@
 // src/pages/pursuits/PlanDimensionPage/PlanDimensionPage.tsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./PlanDimensionPage.module.css";
-import { createPlanDimension } from "../../../service/projectService";
+import { getPlanDimension, createPlanDimension, updatePlanDimension } from "../../../service/projectService";
 import { PlanDimension } from "../../../types/PlanDimension";
-import { OutletContextProps } from "../../pursuits/create-pursuit/NewPursuitPageContainer";
+import { OutletContextProps } from "../edit-pursuit/EditPursuitPageContainer";
 
-const STATUS_OPTIONS: Array<"Good" | "Warning" | "Bad" | "Not Defined"> = [
-  "Good",
-  "Warning",
-  "Bad",
-  "Not Defined",
-];
+const STATUS_OPTIONS = ["Good", "Warning", "Bad", "Not Defined"];
 
 const PlanDimensionPage: React.FC = () => {
-  const { projectId, planData, setPlanData } = useOutletContext<OutletContextProps>();
+  const { projectId } = useOutletContext<OutletContextProps>();
   const navigate = useNavigate();
-  const [error, setError] = React.useState("");
-  const [message, setMessage] = React.useState("");
 
-  if (!projectId) {
-    return <div className={styles.error}>Project ID not found.</div>;
-  }
+  const [planData, setPlanData] = useState<PlanDimension>({
+    id: "",
+    backlogResponsible: "",
+    roadMap: "",
+    deliverables: "",
+    status: "Not Defined",
+    observations: "",
+  });
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (projectId) {
+      getPlanDimension(projectId)
+        .then((data) => {
+          if (data && data.id) {
+            setPlanData(data);
+          }
+        })
+        .catch((err) => {
+          console.warn("No plan dimension data found, initializing empty.", err);
+        });
+    }
+  }, [projectId]);
 
   const handleChange = (field: keyof PlanDimension, value: string) => {
     setPlanData({ ...planData, [field]: value });
@@ -33,58 +47,56 @@ const PlanDimensionPage: React.FC = () => {
     setError("");
     setMessage("");
 
-    const dimensionId = uuidv4();
-    const newPlanDimension: PlanDimension = {
-      id: dimensionId,
-      backlogResponsible: planData.backlogResponsible,
-      roadMap: planData.roadMap,
-      deliverables: planData.deliverables,
-      status: planData.status as "Good" | "Warning" | "Bad" | "Not Defined",
-      observations: planData.observations,
-    };
+    if (!projectId) {
+      setError("No project ID found.");
+      return;
+    }
 
     try {
-      await createPlanDimension(projectId, newPlanDimension);
-      setMessage("Plan dimension saved successfully. You can continue editing this dimension or add another.");
-      // No limpiamos el estado para que persista la información
+      if (planData.id) {
+        await updatePlanDimension(projectId, planData.id, planData);
+        setMessage("Plan dimension updated successfully.");
+      } else {
+        const newId = uuidv4();
+        const newData: PlanDimension = { ...planData, id: newId };
+        await createPlanDimension(projectId, newData);
+        setPlanData(newData);
+        setMessage("Plan dimension created successfully.");
+      }
     } catch (err: any) {
-      setError("Error creating plan dimension: " + err.message);
+      console.error("Error saving plan dimension:", err);
+      setError("Error saving plan dimension: " + err.message);
     }
   };
 
   const handleCancel = () => {
-    navigate("/pursuits");
+    navigate("/pursuits/edit/" + projectId + "/details", { state: { projectId } });
   };
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.sectionTitle}>Pursuit Plan</h2>
+      <h2 className={styles.sectionTitle}>Plan Dimension</h2>
+      {error && <p className={styles.error}>{error}</p>}
       {message && <p className={styles.success}>{message}</p>}
       <form onSubmit={handleSubmit} className={styles.form}>
-        <h3 className={styles.subSectionTitle}>Pursuit Plan</h3>
+        <h3 className={styles.subSectionTitle}>Plan Information</h3>
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
-            <label>
-              Who is/will be responsible for backlog management and User stories documentation
-            </label>
+            <label>Backlog Responsible</label>
             <textarea
               value={planData.backlogResponsible}
               onChange={(e) => handleChange("backlogResponsible", e.target.value)}
             />
           </div>
           <div className={styles.formGroup}>
-            <label>
-              Is there a roadmap or an execution plan for the deliverables? If so, how was it estimated?
-            </label>
+            <label>Road Map</label>
             <textarea
               value={planData.roadMap}
               onChange={(e) => handleChange("roadMap", e.target.value)}
             />
           </div>
           <div className={styles.formGroup}>
-            <label>
-              What are the deliverables and timelines? In what time frame do you expect to achieve them?
-            </label>
+            <label>Deliverables and Timelines</label>
             <textarea
               value={planData.deliverables}
               onChange={(e) => handleChange("deliverables", e.target.value)}
@@ -114,7 +126,6 @@ const PlanDimensionPage: React.FC = () => {
             />
           </div>
         </div>
-        {error && <p className={styles.error}>{error}</p>}
         <div className={styles.buttons}>
           <button type="button" onClick={handleCancel} className={styles.cancelButton}>
             Cancel
