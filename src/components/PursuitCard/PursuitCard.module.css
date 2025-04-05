@@ -1,38 +1,108 @@
-/* src/components/PursuitCard.module.css */
 .card {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    padding: 0.75rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    cursor: grab;
-  }
-  
-  .dimensions {
-    margin-top: 0.5rem;
-    display: flex;
-    gap: 0.4rem;
-  }
-  
-  .dimension {
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    color: #fff;
-  }
-  
-  /* Colores según estado */
-  .statusGood {
-    background-color: #28a745;
-  }
-  .statusWarning {
-    background-color: #ffc107;
-    color: #333;
-  }
-  .statusBad {
-    background-color: #dc3545;
-  }
-  .statusUndefined {
-    background-color: #6c757d;
-  }
-  
+  position: relative;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 280px;
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.editIcon {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  cursor: pointer;
+  color: #6c63ff;
+}
+
+.iconSvg {
+  width: 24px;
+  height: 24px;
+}
+
+.infoSection {
+  margin-bottom: 0.75rem;
+}
+
+.pursuitName {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.accountName {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.portfolioName {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #999;
+  margin-bottom: 0.5rem;
+}
+
+.contactLabel {
+  margin: 0;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: #aaa;
+  font-weight: 500;
+}
+
+.contactName {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #444;
+  margin-bottom: 0.5rem;
+}
+
+.dimensionsSection {
+  margin-top: 0.5rem;
+}
+
+.dimensionsRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.dimensionChip {
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #fff;
+  display: inline-block;
+}
+
+.statusGood {
+  background-color: #28a745;
+}
+
+.statusWarning {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.statusBad {
+  background-color: #dc3545;
+}
+
+.statusUndefined {
+  background-color: #6c757d;
+}
+
+.lastUpdated {
+  margin: 0;
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: #999;
+  text-align: right;
+}

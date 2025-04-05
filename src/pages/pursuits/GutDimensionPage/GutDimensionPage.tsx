@@ -1,30 +1,41 @@
-// src/pages/pursuits/create-pursuit/GutDimensionPage.tsx
-import React from "react";
+// src/pages/pursuits/GutDimensionPage/GutDimensionPage.tsx
+import React, { useState, useEffect } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./GutDimensionPage.module.css";
-import { createGutDimension } from "../../../service/projectService";
+import { getGutDimension, createGutDimension, updateGutDimension } from "../../../service/projectService";
 import { GutDimension } from "../../../types/GutDimension";
-import { OutletContextProps } from "../create-pursuit/NewPursuitPageContainer";
+import { OutletContextProps } from "../edit-pursuit/EditPursuitPageContainer";
 
-const STATUS_OPTIONS: Array<"Good" | "Warning" | "Bad" | "Not Defined"> = [
-  "Good",
-  "Warning",
-  "Bad",
-  "Not Defined",
-];
+const STATUS_OPTIONS = ["Good", "Warning", "Bad", "Not Defined"];
 
 const GutDimensionPage: React.FC = () => {
-  const { projectId, gutData, setGutData } = useOutletContext<OutletContextProps>();
+  const { projectId } = useOutletContext<OutletContextProps>();
   const navigate = useNavigate();
-  const [error, setError] = React.useState("");
-  const [message, setMessage] = React.useState("");
 
-  if (!projectId) {
-    return <div className={styles.error}>Project ID not found. Please create the Pursuit first.</div>;
-  }
+  const [gutData, setGutData] = useState<GutDimension>({
+    id: "",
+    observations: "",
+    status: "Not Defined",
+  });
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleChange = (field: keyof Omit<GutDimension, "id">, value: string) => {
+  useEffect(() => {
+    if (projectId) {
+      getGutDimension(projectId)
+        .then((data) => {
+          if (data && data.id) {
+            setGutData(data);
+          }
+        })
+        .catch((err) => {
+          console.warn("No gut dimension data found, initializing empty.", err);
+        });
+    }
+  }, [projectId]);
+
+  const handleChange = (field: keyof GutDimension, value: string) => {
     setGutData({ ...gutData, [field]: value });
   };
 
@@ -33,24 +44,30 @@ const GutDimensionPage: React.FC = () => {
     setError("");
     setMessage("");
 
-    const dimensionId = uuidv4();
-    const newGutDimension: GutDimension = {
-      id: dimensionId,
-      observations: gutData.observations,
-      status: gutData.status as "Good" | "Warning" | "Bad" | "Not Defined",
-    };
+    if (!projectId) {
+      setError("No project ID found.");
+      return;
+    }
 
     try {
-      await createGutDimension(projectId, newGutDimension);
-      setMessage("Gut dimension saved successfully. You can continue editing this dimension or add another.");
-      // No limpiamos el estado para que los datos persistan
+      if (gutData.id) {
+        await updateGutDimension(projectId, gutData.id, gutData);
+        setMessage("Gut dimension updated successfully.");
+      } else {
+        const newId = uuidv4();
+        const newData: GutDimension = { ...gutData, id: newId };
+        await createGutDimension(projectId, newData);
+        setGutData(newData);
+        setMessage("Gut dimension created successfully.");
+      }
     } catch (err: any) {
-      setError("Error creating gut dimension: " + err.message);
+      console.error("Error saving gut dimension:", err);
+      setError("Error saving gut dimension: " + err.message);
     }
   };
 
   const handleCancel = () => {
-    navigate("/pursuits");
+    navigate("/pursuits/edit/" + projectId + "/details", { state: { projectId } });
   };
 
   return (
@@ -59,15 +76,13 @@ const GutDimensionPage: React.FC = () => {
       <p className={styles.description}>
         In addition to the previous points, how is your feeling of the team's general health? Also consider external factors such as the relationship with the client or other factors that may represent a risk to the health of the project.
       </p>
+      {error && <p className={styles.error}>{error}</p>}
       {message && <p className={styles.success}>{message}</p>}
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
             <label>Gut Status</label>
-            <select
-              value={gutData.status}
-              onChange={(e) => handleChange("status", e.target.value)}
-            >
+            <select value={gutData.status} onChange={(e) => handleChange("status", e.target.value)}>
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}

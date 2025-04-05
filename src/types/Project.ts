@@ -24,6 +24,7 @@ export interface Project {
     onboardingProcess?: string;
     servicesScope?: string;
     levelOfAccount?: string;
+    updatedAt?: string;
   }
   
   

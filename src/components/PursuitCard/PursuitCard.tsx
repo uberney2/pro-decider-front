@@ -4,20 +4,23 @@ import styles from "./PursuitCard.module.css";
 import { Project } from "../../types/Project";
 import { getDimensionStatus } from "../../service/projectService";
 
-interface Props {
+export interface PursuitCardProps {
   project: Project;
+  onEdit: (projectId: string) => void;
 }
 
-export const PursuitCard: React.FC<Props> = ({ project }) => {
-  const [dimensions, setDimensions] = useState<{
-    plan: string;
-    team: string;
-    process: string;
-    qa: string;
-    gut: string;
-  }>({
-    plan: "Not Defined",
+interface DimensionsState {
+  team: string;
+  plan: string;
+  process: string;
+  qa: string;
+  gut: string;
+}
+
+const PursuitCard: React.FC<PursuitCardProps> = ({ project, onEdit }) => {
+  const [dimensions, setDimensions] = useState<DimensionsState>({
     team: "Not Defined",
+    plan: "Not Defined",
     process: "Not Defined",
     qa: "Not Defined",
     gut: "Not Defined",
@@ -41,7 +44,7 @@ export const PursuitCard: React.FC<Props> = ({ project }) => {
     loadDimensions();
   }, [project.id]);
 
-  const getStatusColor = (status: string) => {
+  const getStatusClass = (status: string) => {
     switch (status) {
       case "Good":
         return styles.statusGood;
@@ -54,32 +57,77 @@ export const PursuitCard: React.FC<Props> = ({ project }) => {
     }
   };
 
+  const lastUpdated = project.statusChangeDate
+    ? new Date(project.statusChangeDate).toLocaleDateString()
+    : "N/A";
+
   return (
     <div className={styles.card}>
-      <h4>{project.name}</h4>
-      <p>Account: {project.account.name}</p>
-      <p>Portfolio: {project.account.portfolio.name}</p>
-      <p>Contract Type: {project.contractType}</p>
-      <p>GM %: {project.gmPercentage}</p>
-      <p>Total SOW: {project.totalSOW}</p>
+      {/* Botón de edición */}
+      <button
+        type="button"
+        className={styles.editIcon}
+        onMouseDown={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          onEdit(project.id);
+        }}
+        draggable={false}
+      >
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={styles.iconSvg}
+        >
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+      </button>
 
-      <div className={styles.dimensions}>
-        <span className={`${styles.dimension} ${getStatusColor(dimensions.plan)}`}>
-          Plan
-        </span>
-        <span className={`${styles.dimension} ${getStatusColor(dimensions.team)}`}>
-          Team
-        </span>
-        <span className={`${styles.dimension} ${getStatusColor(dimensions.process)}`}>
-          Process
-        </span>
-        <span className={`${styles.dimension} ${getStatusColor(dimensions.qa)}`}>
-          QA
-        </span>
-        <span className={`${styles.dimension} ${getStatusColor(dimensions.gut)}`}>
-          Get Feeling
-        </span>
+      <div className={styles.infoSection}>
+        <h3 className={styles.pursuitName}>{project.name}</h3>
+        <p className={styles.accountName}>{project.account.name}</p>
+        <p className={styles.portfolioName}>{project.account.portfolio.name}</p>
+        <p className={styles.contactLabel}>Contact</p>
+        <p className={styles.contactName}>
+          {project.usaPointOfContact || "No contact"}
+        </p>
       </div>
+
+      <div className={styles.dimensionsSection}>
+        <div className={styles.dimensionsRow}>
+          <span className={`${styles.dimensionChip} ${getStatusClass(dimensions.team)}`}>
+            Team
+          </span>
+          <span className={`${styles.dimensionChip} ${getStatusClass(dimensions.plan)}`}>
+            Plan
+          </span>
+          <span className={`${styles.dimensionChip} ${getStatusClass(dimensions.process)}`}>
+            Process
+          </span>
+        </div>
+        <div className={styles.dimensionsRow}>
+          <span className={`${styles.dimensionChip} ${getStatusClass(dimensions.qa)}`}>
+            QA
+          </span>
+          <span className={`${styles.dimensionChip} ${getStatusClass(dimensions.gut)}`}>
+            Get Feeling
+          </span>
+        </div>
+      </div>
+
+      <p className={styles.lastUpdated}>Last updated: {lastUpdated}</p>
     </div>
   );
 };
+
+export default PursuitCard;
