@@ -30,7 +30,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/home" element={<Home />} />
             <Route path="/accounts" element={<Accounts />} />
             <Route path="/pursuits" element={<Pursuits />} />
-            <Route path="/accounts/new" element={<AccountCreatePage />} />
+            <Route path="/accounts/new/*" element={<AccountCreatePage />} />
             <Route path="/accounts/:accountId" element={<AccountEditPage />} />
             {/* Rutas anidadas para crear un Pursuit */}
             <Route path="/pursuits/new/*" element={<NewPursuitPageContainer />}>
