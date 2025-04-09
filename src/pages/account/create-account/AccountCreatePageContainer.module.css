@@ -1,0 +1,31 @@
+/* src/pages/account/create/AccountCreatePageContainer.module.css */
+.container {
+    padding: 1.5rem;
+    background-color: #f8f8f8;
+    min-height: 100vh;
+  }
+  
+  .tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .tab {
+    background-color: transparent;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.3s;
+  }
+  
+  .tab:hover {
+    border-bottom: 2px solid #ccc;
+  }
+  
+  .activeTab {
+    border-bottom: 2px solid #000;
+  }
+  

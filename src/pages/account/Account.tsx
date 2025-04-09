@@ -18,7 +18,6 @@ const AccountsPage: React.FC = () => {
   const [searchName, setSearchName] = useState("");
   const [searchBuOwner, setSearchBuOwner] = useState("");
   const [searchKeyPeople, setSearchKeyPeople] = useState("");
-
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -26,6 +25,7 @@ const AccountsPage: React.FC = () => {
 
   // Acceder al portfolio almacenado en AuthContext
   const { portfolio } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,15 +39,17 @@ const AccountsPage: React.FC = () => {
     fetchData();
   }, []);
 
+  // Filtrado de cuentas
   const filteredAccounts = useMemo(() => {
     return accounts.filter((acc) => {
       const matchesName = acc.name.toLowerCase().includes(searchName.toLowerCase());
       const matchesBuOwner = acc.buOwner.name.toLowerCase().includes(searchBuOwner.toLowerCase());
+      // Para keyPeople, asumimos que el campo es un arreglo de objetos y queremos filtrar por su propiedad "name"
       const matchesKey =
         searchKeyPeople === "" ||
         (acc.keyPeople &&
-          acc.keyPeople.some((kp: string) =>
-            kp.toLowerCase().includes(searchKeyPeople.toLowerCase())
+          acc.keyPeople.some((kp: any) =>
+            String(kp.name).toLowerCase().includes(searchKeyPeople.toLowerCase())
           ));
       return matchesName && matchesBuOwner && matchesKey;
     });
@@ -64,8 +66,11 @@ const AccountsPage: React.FC = () => {
       header: "BU Owner",
     },
     {
+      // Modificamos la columna keyPeople para mapear los nombres
       accessorFn: (row) =>
-        row.keyPeople && row.keyPeople.length > 0 ? row.keyPeople.join(", ") : "—",
+        row.keyPeople && row.keyPeople.length > 0
+          ? row.keyPeople.map((kp: any) => kp.name).join(", ")
+          : "—",
       id: "keyPeople",
       header: "Key People",
     },
@@ -97,7 +102,6 @@ const AccountsPage: React.FC = () => {
     navigate(`/accounts/${account.id}`, { state: { account } });
   };
 
-  const navigate = useNavigate();
   const handleNewAccount = () => {
     navigate("/accounts/new");
   };
