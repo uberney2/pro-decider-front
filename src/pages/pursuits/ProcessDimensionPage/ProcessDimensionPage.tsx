@@ -3,9 +3,17 @@ import React, { useState, useEffect } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./ProcessDimensionPage.module.css";
-import { getProcessDimension, createProcessDimension, updateProcessDimension } from "../../../service/projectService";
+import { 
+  getProcessDimension, 
+  createProcessDimension, 
+  updateProcessDimension 
+} from "../../../service/projectService";
 import { ProcessDimension } from "../../../types/ProcessDimension";
 import { OutletContextProps } from "../edit-pursuit/EditPursuitPageContainer";
+
+// Importaciones de react-toastify
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const STATUS_OPTIONS = ["Good", "Warning", "Bad", "Not Defined"];
 
@@ -23,6 +31,7 @@ const ProcessDimensionPage: React.FC = () => {
     observations: "",
     status: "Not Defined",
   });
+
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -41,7 +50,7 @@ const ProcessDimensionPage: React.FC = () => {
   }, [projectId]);
 
   const handleChange = (field: keyof ProcessDimension, value: string) => {
-    setProcessData({ ...processData, [field]: value });
+    setProcessData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -50,24 +59,31 @@ const ProcessDimensionPage: React.FC = () => {
     setMessage("");
 
     if (!projectId) {
-      setError("No project ID found.");
+      const errMsg = "No project ID found.";
+      setError(errMsg);
+      toast.error(errMsg);
       return;
     }
 
     try {
       if (processData.id) {
+        // Actualizamos la dimensión si ya existe
         await updateProcessDimension(projectId, processData.id, processData);
         setMessage("Process dimension updated successfully.");
       } else {
+        // Creación de una nueva dimensión
         const newId = uuidv4();
         const newData: ProcessDimension = { ...processData, id: newId };
         await createProcessDimension(projectId, newData);
         setProcessData(newData);
         setMessage("Process dimension created successfully.");
+        toast.success("Process dimension created successfully!");
       }
     } catch (err: any) {
       console.error("Error saving process dimension:", err);
-      setError("Error saving process dimension: " + err.message);
+      const errMsg = "Error saving process dimension: " + err.message;
+      setError(errMsg);
+      toast.error(errMsg);
     }
   };
 
@@ -78,8 +94,11 @@ const ProcessDimensionPage: React.FC = () => {
   return (
     <div className={styles.container}>
       <h2 className={styles.sectionTitle}>Process Dimension</h2>
+
+      {/* Mensajes en pantalla (opcional, además de los toasts) */}
       {error && <p className={styles.error}>{error}</p>}
       {message && <p className={styles.success}>{message}</p>}
+
       <form onSubmit={handleSubmit} className={styles.form}>
         <h3 className={styles.subSectionTitle}>Process Description</h3>
         <div className={styles.formRow}>
@@ -126,6 +145,7 @@ const ProcessDimensionPage: React.FC = () => {
             </select>
           </div>
         </div>
+
         <h3 className={styles.subSectionTitle}>Status Information</h3>
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
@@ -135,7 +155,9 @@ const ProcessDimensionPage: React.FC = () => {
               onChange={(e) => handleChange("status", e.target.value)}
             >
               {STATUS_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           </div>
@@ -147,6 +169,7 @@ const ProcessDimensionPage: React.FC = () => {
             />
           </div>
         </div>
+
         <div className={styles.buttons}>
           <button type="button" onClick={handleCancel} className={styles.cancelButton}>
             Cancel
@@ -156,6 +179,19 @@ const ProcessDimensionPage: React.FC = () => {
           </button>
         </div>
       </form>
+
+      {/* Contenedor de Toastify */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };
