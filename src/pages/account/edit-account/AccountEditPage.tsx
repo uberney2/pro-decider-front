@@ -85,8 +85,6 @@ const AccountEditPage: React.FC = () => {
       {/* Pestañas */}
       <div className={styles.tabs}>
         <button className={`${styles.tab} ${styles.activeTab}`}>Details</button>
-        <button className={styles.tab} disabled>Key People</button>
-        <button className={styles.tab} disabled>Projects</button>
       </div>
 
       <h2 className={styles.sectionTitle}>Edit Account Details</h2>
