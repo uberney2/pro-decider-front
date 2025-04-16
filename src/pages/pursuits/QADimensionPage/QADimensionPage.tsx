@@ -1,11 +1,20 @@
 // src/pages/pursuits/QADimensionPage/QADimensionPage.tsx
+
 import React, { useState, useEffect } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./QADimensionPage.module.css";
-import { getQADimension, createQADimension, updateQADimension } from "../../../service/projectService";
+import {
+  getQADimension,
+  createQADimension,
+  updateQADimension,
+} from "../../../service/projectService";
 import { QADimension } from "../../../types/QADimension";
 import { OutletContextProps } from "../edit-pursuit/EditPursuitPageContainer";
+
+// Importaciones de react-toastify
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const STATUS_OPTIONS = ["Good", "Warning", "Bad", "Not Defined"];
 
@@ -50,24 +59,30 @@ const QADimensionPage: React.FC = () => {
     setMessage("");
 
     if (!projectId) {
-      setError("No project ID found.");
+      const errMsg = "No project ID found.";
+      setError(errMsg);
+      toast.error(errMsg);
       return;
     }
 
     try {
       if (qaData.id) {
+        // Actualizar QA Dimension existente
         await updateQADimension(projectId, qaData.id, qaData);
-        setMessage("QA dimension updated successfully.");
+        toast.success("QA dimension updated successfully!");
       } else {
+        // Crear nueva QA Dimension
         const newId = uuidv4();
         const newData: QADimension = { ...qaData, id: newId };
         await createQADimension(projectId, newData);
         setQaData(newData);
-        setMessage("QA dimension created successfully.");
+        toast.success("QA dimension created successfully!");
       }
     } catch (err: any) {
       console.error("Error saving QA dimension:", err);
-      setError("Error saving QA dimension: " + err.message);
+      const errMsg = "Error saving QA dimension: " + err.message;
+      setError(errMsg);
+      toast.error(errMsg);
     }
   };
 
@@ -78,8 +93,11 @@ const QADimensionPage: React.FC = () => {
   return (
     <div className={styles.container}>
       <h2 className={styles.sectionTitle}>QA Dimension</h2>
+
+      {/* Mensajes en pantalla (opcional, además de los toasts) */}
       {error && <p className={styles.error}>{error}</p>}
       {message && <p className={styles.success}>{message}</p>}
+
       <form onSubmit={handleSubmit} className={styles.form}>
         <h3 className={styles.subSectionTitle}>QA Composition Risk</h3>
         <div className={styles.formRow}>
@@ -92,7 +110,8 @@ const QADimensionPage: React.FC = () => {
           </div>
           <div className={styles.formGroup}>
             <label>
-              Are there existing tools for defect management, test cases management, code management, also automation?
+              Are there existing tools for defect management, test cases management,
+              code management, also automation?
             </label>
             <textarea
               value={qaData.testTools}
@@ -107,6 +126,7 @@ const QADimensionPage: React.FC = () => {
             />
           </div>
         </div>
+
         <h3 className={styles.subSectionTitle}>
           About QA Process <small>(Both can be picked if necessary)</small>
         </h3>
@@ -132,11 +152,15 @@ const QADimensionPage: React.FC = () => {
             </label>
           </div>
         </div>
+
         <h3 className={styles.subSectionTitle}>Status Information</h3>
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
             <label>QA Status</label>
-            <select value={qaData.status} onChange={(e) => handleChange("status", e.target.value)}>
+            <select
+              value={qaData.status}
+              onChange={(e) => handleChange("status", e.target.value)}
+            >
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
@@ -152,8 +176,13 @@ const QADimensionPage: React.FC = () => {
             />
           </div>
         </div>
+
         <div className={styles.buttons}>
-          <button type="button" onClick={handleCancel} className={styles.cancelButton}>
+          <button
+            type="button"
+            onClick={handleCancel}
+            className={styles.cancelButton}
+          >
             Cancel
           </button>
           <button type="submit" className={styles.saveButton}>
@@ -161,6 +190,19 @@ const QADimensionPage: React.FC = () => {
           </button>
         </div>
       </form>
+
+      {/* Contenedor de Toastify para mensajes */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };

@@ -11,6 +11,10 @@ import {
 import { TeamDimension } from "../../../types/TeamDimension";
 import { OutletContextProps } from "../edit-pursuit/EditPursuitPageContainer";
 
+// Importaciones de React Toastify
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const STATUS_OPTIONS = ["Good", "Warning", "Bad", "Not Defined"];
 
 const TeamDimensionPage: React.FC = () => {
@@ -53,24 +57,31 @@ const TeamDimensionPage: React.FC = () => {
     setMessage("");
 
     if (!projectId) {
-      setError("No project ID found.");
+      const errMsg = "No project ID found.";
+      setError(errMsg);
+      toast.error(errMsg);
       return;
     }
 
     try {
       if (teamData.id) {
+        // Actualizar dimensión existente
         await updateTeamDimension(projectId, teamData.id, teamData);
-        setMessage("Team dimension updated successfully.");
+        toast.success("Team dimension updated successfully!");
       } else {
+        // Crear nueva dimensión
         const newId = uuidv4();
         const newData: TeamDimension = { ...teamData, id: newId };
         await createTeamDimension(projectId, newData);
         setTeamData(newData);
         setMessage("Team dimension created successfully.");
+        toast.success("Team dimension created successfully!");
       }
     } catch (err: any) {
-      console.error("Error saving team dimension:", err);
-      setError("Error saving team dimension: " + err.message);
+      const errMsg = "Error saving team dimension: " + err.message;
+      console.error(errMsg);
+      setError(errMsg);
+      toast.error(errMsg);
     }
   };
 
@@ -81,8 +92,11 @@ const TeamDimensionPage: React.FC = () => {
   return (
     <div className={styles.container}>
       <h2 className={styles.sectionTitle}>Team Dimension</h2>
+
+      {/* Mensajes en pantalla (opcional si todavía se desea mostrar) */}
       {error && <p className={styles.error}>{error}</p>}
       {message && <p className={styles.success}>{message}</p>}
+
       <form onSubmit={handleSubmit} className={styles.form}>
         <h3 className={styles.subSectionTitle}>Team Composition Risk</h3>
         <div className={styles.formRow}>
@@ -116,6 +130,7 @@ const TeamDimensionPage: React.FC = () => {
             />
           </div>
         </div>
+
         <h3 className={styles.subSectionTitle}>Status Information</h3>
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
@@ -139,6 +154,7 @@ const TeamDimensionPage: React.FC = () => {
             />
           </div>
         </div>
+
         <div className={styles.buttons}>
           <button type="button" onClick={handleCancel} className={styles.cancelButton}>
             Cancel
@@ -148,6 +164,19 @@ const TeamDimensionPage: React.FC = () => {
           </button>
         </div>
       </form>
+
+      {/* ToastContainer para mostrar los mensajes de react-toastify */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };
