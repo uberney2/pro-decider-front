@@ -11,21 +11,22 @@
   box-sizing: border-box;
 }
 
-/* Icono editar */
 .editIcon {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
   cursor: pointer;
-  color: #6c63ff;
+  background: transparent;  /* quita el fondo */
+  border: none;             /* quita el borde */
+  padding: 0;               /* elimina padding */
+  outline: none;            /* quita outline */
 }
 
 .iconSvg {
-  width: 24px;
-  height: 24px;
+  width: 16px;              /* tamaño más pequeño */
+  height: 16px;
 }
 
-/* Sección de texto */
 .infoSection {
   margin-bottom: 0.75rem;
 }
@@ -78,7 +79,7 @@
 }
 
 .dimensionChip {
-  flex: 1;               /* equivale a grow:1 + shrink:1 + basis:0 */
+  flex: 1;               /* reparten el ancho equitativamente */
   padding: 0.5rem 1rem;  /* 8px arriba/abajo, 16px lados */
   border-radius: 9999px;
   font-size: 0.75rem;
@@ -106,7 +107,6 @@
   background-color: #6c757d;
 }
 
-/* Fecha */
 .lastUpdated {
   margin: 0;
   margin-top: 1rem;

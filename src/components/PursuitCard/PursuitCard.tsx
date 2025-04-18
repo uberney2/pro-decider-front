@@ -63,11 +63,14 @@ const PursuitCard: React.FC<PursuitCardProps> = ({ project, onEdit }) => {
 
   return (
     <div className={styles.card}>
-      {/* Edit icon */}
+      {/* Icono de editar más pequeño y sin recuadro */}
       <button
         type="button"
         className={styles.editIcon}
-        onClick={e => { e.stopPropagation(); onEdit(project.id); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onEdit(project.id);
+        }}
         draggable={false}
       >
         <svg
@@ -83,7 +86,7 @@ const PursuitCard: React.FC<PursuitCardProps> = ({ project, onEdit }) => {
         </svg>
       </button>
 
-      {/* Información */}
+      {/* Información principal */}
       <div className={styles.infoSection}>
         <h3 className={styles.pursuitName}>{project.name}</h3>
         <p className={styles.accountName}>{project.account.name}</p>
@@ -94,7 +97,7 @@ const PursuitCard: React.FC<PursuitCardProps> = ({ project, onEdit }) => {
         </p>
       </div>
 
-      {/* Dimensiones en dos filas fijas */}
+      {/* Dimensiones en dos filas */}
       <div className={styles.dimensionsSection}>
         <div className={styles.dimensionsRow}>
           <span className={`${styles.dimensionChip} ${getStatusClass(dimensions.team)}`}>
@@ -117,7 +120,7 @@ const PursuitCard: React.FC<PursuitCardProps> = ({ project, onEdit }) => {
         </div>
       </div>
 
-      {/* Pie con fecha */}
+      {/* Última actualización */}
       <p className={styles.lastUpdated}>Last updated: {lastUpdated}</p>
     </div>
   );
