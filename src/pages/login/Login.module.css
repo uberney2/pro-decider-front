@@ -1,61 +1,90 @@
-.loginContainer {
-  width: 100%;
-  max-width: 400px;
-  margin: 3rem auto;
-  padding: 2rem;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* src/pages/login/Login.module.css */
+
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap");
+
+* { box-sizing: border-box; }
+
+.pageWrapper{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#f5f7fa;
+  padding:1rem;
+  font-family:'IBM Plex Mono', monospace;
 }
 
-.title {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
-  color: #333;
+/* ----- tarjeta ----- */
+.card{
+  width:100%;
+  max-width:420px;
+  background:#fff;
+  border-radius:10px;
+  box-shadow:0 6px 18px rgba(0,0,0,.06);
+  padding:2.5rem 2rem;
 }
 
-.form {
-  display: flex;
-  flex-direction: column;
+.title{
+  text-align:center;
+  font-size:1.8rem;
+  font-weight:700;
+  margin-bottom:2rem;
+  color:#111;
 }
 
-.formGroup {
-  margin-bottom: 1.2rem;
+/* ----- formulario ----- */
+.form{
+  display:flex;
+  flex-direction:column;
+  gap:2.25rem;
 }
 
-.label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #555;
+.formGroup{ display:flex; flex-direction:column; }
+
+.label{
+  margin-bottom:.45rem;
+  font-weight:600;
+  font-size:.9rem;
+  color:#333;
 }
 
-.input {
-  width: 100%;
-  padding: 0.6rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
+.input{
+  padding:.65rem .8rem;
+  font-size:.95rem;
+  border:1px solid #dcdcdc;
+  border-radius:6px;
+  background:#f0f0f0;
+  transition:border-color .2s, background .2s;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
-.button {
-  padding: 0.75rem;
-  border: none;
-  border-radius: 4px;
-  background-color: #007bff;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+.input:focus{
+  background:#fff;
+  border-color:#6f43ff;
+  box-shadow:0 0 0 2px rgba(111,67,255,.2);
+  outline:none;
 }
 
-.button:hover {
-  background-color: #0056b3;
+/* ----- botón ----- */
+.button{
+  margin-top:.5rem;
+  padding:.75rem 1rem;
+  background:#6f43ff;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  font-size:1rem;
+  font-weight:600;
+  cursor:pointer;
+  transition:background .25s;
+  font-family: 'IBM Plex Mono', monospace;
 }
+.button:hover{ background:#5e3ad1; }
 
-.error {
-  color: red;
-  margin-bottom: 1rem;
-  font-weight: 500;
+/* ----- error ----- */
+.error{
+  color:#d22;
+  font-size:.85rem;
+  margin-top:-.5rem;
+  font-weight:500;
 }
