@@ -1,4 +1,3 @@
-// src/pages/account/create-account/KeyPeopleForm.tsx
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./AccountKeyPeopleForm.module.css";
@@ -9,7 +8,6 @@ import { createKeyPerson, linkAccountKeyPeople } from "../../../service/accountS
 import { useLocation } from "react-router-dom";
 
 const KeyPeopleForm: React.FC = () => {
-  // Se extrae accountId del state de navegación (pasado desde la creación de la cuenta)
   const location = useLocation();
   const accountId = location.state?.accountId;
 
@@ -44,12 +42,9 @@ const KeyPeopleForm: React.FC = () => {
     };
 
     try {
-      // Crear key person
       await createKeyPerson(newKeyPerson);
-      // Llamar al endpoint para relacionar account y key person
       await linkAccountKeyPeople(accountId, newKeyPerson.id);
       toast.success("Key person saved and linked successfully!");
-      // Reset de campos
       setName("");
       setRole("");
       setEmail("");
@@ -60,50 +55,55 @@ const KeyPeopleForm: React.FC = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.sectionTitle}>Key People</h2>
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <div className={styles.formGroup}>
-          <label htmlFor="name" className={styles.label}>Name</label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className={styles.input}
-            placeholder="Enter key person name"
-            required
-          />
-        </div>
-        <div className={styles.formGroup}>
-          <label htmlFor="role" className={styles.label}>Role</label>
-          <input
-            type="text"
-            id="role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className={styles.input}
-            placeholder="Enter role"
-            required
-          />
-        </div>
-        <div className={styles.formGroup}>
-          <label htmlFor="email" className={styles.label}>Email</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={styles.input}
-            placeholder="Enter email"
-            required
-          />
-        </div>
-        {error && <p className={styles.error}>{error}</p>}
-        <div className={styles.buttons}>
-          <button type="submit" className={styles.saveButton}>Save</button>
-        </div>
-      </form>
+    <div className={styles.pageContainer}>
+      <div className={styles.card}>
+        <h2 className={styles.sectionTitle}>Key People</h2>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.formGroup}>
+            <label htmlFor="name" className={styles.label}>Name</label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={styles.input}
+              placeholder="Enter key person name"
+              required
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="role" className={styles.label}>Role</label>
+            <input
+              type="text"
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className={styles.input}
+              placeholder="Enter role"
+              required
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="email" className={styles.label}>Email</label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={styles.input}
+              placeholder="Enter email"
+              required
+            />
+          </div>
+          {error && <p className={styles.error}>{error}</p>}
+          <div className={styles.buttons}>
+            <button type="submit" className={styles.saveButton}>
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+
       <ToastContainer
         position="top-right"
         autoClose={3000}

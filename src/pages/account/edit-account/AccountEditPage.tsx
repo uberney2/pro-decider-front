@@ -6,7 +6,6 @@ import { getBuOwners } from "../../../service/buOwnerService";
 import { AuthContext } from "../../../context/AuthContext";
 import { Account, BuOwner } from "../../../types/Account";
 
-
 const AccountEditPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,21 +15,21 @@ const AccountEditPage: React.FC = () => {
   // Extraemos la cuenta del state del router
   const accountData: Account | undefined = location.state?.account;
 
-  // Si no se recibió data, redirigimos al listado (esto evita errores)
+  // Si no hay data, redirigimos
   useEffect(() => {
     if (!accountData) {
       navigate("/accounts");
     }
   }, [accountData, navigate]);
 
-  // Estados para los campos, inicializados con la data recibida
+  // Estados inicializados
   const [name, setName] = useState(accountData?.name || "");
   const [selectedBuOwnerId, setSelectedBuOwnerId] = useState(accountData?.buOwner.id || "");
   const [strategy, setStrategy] = useState(accountData?.strategy || "");
   const [buOwners, setBuOwners] = useState<BuOwner[]>([]);
   const [error, setError] = useState("");
 
-  // Cargar BU Owners para el dropdown
+  // Cargamos BU Owners
   useEffect(() => {
     (async () => {
       try {
@@ -42,7 +41,7 @@ const AccountEditPage: React.FC = () => {
     })();
   }, []);
 
-  // Maneja la actualización de la cuenta
+  // Submit de actualización
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
@@ -54,7 +53,7 @@ const AccountEditPage: React.FC = () => {
     }
 
     const updatedAccount: Account = {
-      id: accountId as string,  // Usamos el id de la URL
+      id: accountId as string,
       name,
       buOwner: {
         id: buOwnerObject.id,
@@ -64,7 +63,7 @@ const AccountEditPage: React.FC = () => {
         id: portfolio?.id || "",
         name: portfolio?.name || "No Portfolio",
       },
-      status: "active", // Se mantiene activo
+      status: "active",
       strategy,
     };
 
@@ -76,87 +75,90 @@ const AccountEditPage: React.FC = () => {
     }
   };
 
-  const handleCancel = () => {
-    navigate("/accounts");
-  };
+  const handleCancel = () => navigate("/accounts");
 
   return (
-    <div className={styles.container}>
-      {/* Pestañas */}
-      <div className={styles.tabs}>
-        <button className={`${styles.tab} ${styles.activeTab}`}>Details</button>
+    <div className={styles.pageContainer}>
+      <div className={styles.card}>
+        {/* Solo una pestaña activa */}
+        <div className={styles.tabs}>
+          <button className={`${styles.tab} ${styles.activeTab}`}>Details</button>
+        </div>
+
+        <h2 className={styles.sectionTitle}>Edit Account Details</h2>
+
+        <form onSubmit={handleSubmit} className={styles.form}>
+          {/* Row de tres columnas */}
+          <div className={styles.row}>
+            {/* Name */}
+            <div className={styles.formGroup}>
+              <label htmlFor="name" className={styles.label}>Name</label>
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className={styles.input}
+                required
+              />
+            </div>
+
+            {/* BU Owner */}
+            <div className={styles.formGroup}>
+              <label htmlFor="buOwner" className={styles.label}>BU Owner</label>
+              <select
+                id="buOwner"
+                value={selectedBuOwnerId}
+                onChange={(e) => setSelectedBuOwnerId(e.target.value)}
+                className={styles.select}
+                required
+              >
+                <option value="">-- Select a BU Owner --</option>
+                {buOwners.map((bu) => (
+                  <option key={bu.id} value={bu.id}>{bu.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Portfolio */}
+            <div className={styles.formGroup}>
+              <label htmlFor="portfolio" className={styles.label}>Portfolio</label>
+              <input
+                id="portfolio"
+                type="text"
+                value={portfolio?.name || "No Portfolio"}
+                readOnly
+                className={styles.input}
+              />
+            </div>
+          </div>
+
+          {/* Strategy textarea */}
+          <div className={styles.formGroup}>
+            <label htmlFor="strategy" className={styles.label}>
+              What’s the strategy/objectives with this account?
+            </label>
+            <textarea
+              id="strategy"
+              value={strategy}
+              onChange={(e) => setStrategy(e.target.value)}
+              className={styles.textarea}
+              rows={6}
+            />
+          </div>
+
+          {error && <p className={styles.error}>{error}</p>}
+
+          <div className={styles.buttons}>
+            <button type="button" onClick={handleCancel} className={styles.cancelButton}>
+              Cancel
+            </button>
+            <button type="submit" className={styles.saveButton}>
+              Edit and Continue
+            </button>
+          </div>
+        </form>
       </div>
-
-      <h2 className={styles.sectionTitle}>Edit Account Details</h2>
-
-      <form onSubmit={handleSubmit} className={styles.form}>
-        {/* Campo: Name */}
-        <div className={styles.formGroup}>
-          <label htmlFor="name" className={styles.label}>Name</label>
-          <input
-            id="name"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className={styles.input}
-            required
-          />
-        </div>
-
-        {/* Campo: BU Owner (dropdown) */}
-        <div className={styles.formGroup}>
-          <label htmlFor="buOwner" className={styles.label}>BU Owner</label>
-          <select
-            id="buOwner"
-            value={selectedBuOwnerId}
-            onChange={(e) => setSelectedBuOwnerId(e.target.value)}
-            className={styles.select}
-            required
-          >
-            <option value="">-- Select a BU Owner --</option>
-            {buOwners.map((bu) => (
-              <option key={bu.id} value={bu.id}>{bu.name}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Campo: Portfolio (no editable) */}
-        <div className={styles.formGroup}>
-          <label htmlFor="portfolio" className={styles.label}>Portfolio</label>
-          <input
-            id="portfolio"
-            type="text"
-            value={portfolio?.name || "No Portfolio"}
-            readOnly
-            className={styles.input}
-          />
-        </div>
-
-        {/* Campo: Strategy */}
-        <div className={styles.formGroup}>
-          <label htmlFor="strategy" className={styles.label}>
-            What's the strategy/objectives with this account?
-          </label>
-          <textarea
-            id="strategy"
-            value={strategy}
-            onChange={(e) => setStrategy(e.target.value)}
-            className={styles.textarea}
-            rows={4}
-          />
-        </div>
-
-        {error && <p className={styles.error}>{error}</p>}
-
-        <div className={styles.buttons}>
-          <button type="button" onClick={handleCancel} className={styles.cancelButton}>
-            Cancel
-          </button>
-          <button type="submit" className={styles.saveButton}>
-            Edit and Continue
-          </button>
-        </div>
-      </form>
     </div>
   );
 };
