@@ -267,9 +267,6 @@ const NewPursuitDetailsForm: React.FC = () => {
             onChange={(e) => setOnboardingProcess(e.target.value)}
           />
         </div>
-      </div>
-
-      <div className={styles.formRow}>
         <div className={styles.formGroup}>
           <label>Scope of the services</label>
           <textarea
@@ -285,6 +282,7 @@ const NewPursuitDetailsForm: React.FC = () => {
           />
         </div>
       </div>
+
 
       <div className={styles.formRow}>
         <div className={styles.formGroup}>
