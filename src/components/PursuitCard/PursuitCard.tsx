@@ -1,4 +1,5 @@
 // src/components/PursuitCard/PursuitCard.tsx
+
 import React, { useEffect, useState } from "react";
 import styles from "./PursuitCard.module.css";
 import { Project } from "../../types/Project";
@@ -27,7 +28,7 @@ const PursuitCard: React.FC<PursuitCardProps> = ({ project, onEdit }) => {
   });
 
   useEffect(() => {
-    const loadDimensions = async () => {
+    (async () => {
       try {
         const [plan, team, process, qa, gut] = await Promise.all([
           getDimensionStatus(project.id, "plan"),
@@ -38,10 +39,9 @@ const PursuitCard: React.FC<PursuitCardProps> = ({ project, onEdit }) => {
         ]);
         setDimensions({ plan, team, process, qa, gut });
       } catch (err) {
-        console.error("Error fetching dimensions for project:", project.id, err);
+        console.error("Error fetching dimensions:", err);
       }
-    };
-    loadDimensions();
+    })();
   }, [project.id]);
 
   const getStatusClass = (status: string) => {
@@ -63,24 +63,14 @@ const PursuitCard: React.FC<PursuitCardProps> = ({ project, onEdit }) => {
 
   return (
     <div className={styles.card}>
-      {/* Botón de edición */}
+      {/* Edit icon */}
       <button
         type="button"
         className={styles.editIcon}
-        onMouseDown={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          onEdit(project.id);
-        }}
+        onClick={e => { e.stopPropagation(); onEdit(project.id); }}
         draggable={false}
       >
         <svg
-          width="24"
-          height="24"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -93,6 +83,7 @@ const PursuitCard: React.FC<PursuitCardProps> = ({ project, onEdit }) => {
         </svg>
       </button>
 
+      {/* Información */}
       <div className={styles.infoSection}>
         <h3 className={styles.pursuitName}>{project.name}</h3>
         <p className={styles.accountName}>{project.account.name}</p>
@@ -103,6 +94,7 @@ const PursuitCard: React.FC<PursuitCardProps> = ({ project, onEdit }) => {
         </p>
       </div>
 
+      {/* Dimensiones en dos filas fijas */}
       <div className={styles.dimensionsSection}>
         <div className={styles.dimensionsRow}>
           <span className={`${styles.dimensionChip} ${getStatusClass(dimensions.team)}`}>
@@ -125,6 +117,7 @@ const PursuitCard: React.FC<PursuitCardProps> = ({ project, onEdit }) => {
         </div>
       </div>
 
+      {/* Pie con fecha */}
       <p className={styles.lastUpdated}>Last updated: {lastUpdated}</p>
     </div>
   );
