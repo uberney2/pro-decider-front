@@ -1,19 +1,25 @@
 .container {
-    position: relative;
-  }
-  
-  .cardContent {
-    pointer-events: auto; /* Permite que los clics dentro de la tarjeta funcionen normalmente */
-  }
-  
-  .dragHandle {
-    position: absolute;
-    bottom: 4px;
-    right: 4px;
-    cursor: grab;
-    pointer-events: all;
-    padding: 4px;
-    background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
-  }
-  
+  position: relative;
+
+  /* el contenedor encoge al tamaño de la tarjeta */
+  display: block;
+  width: fit-content;
+
+  /* centramos dentro de la columna */
+  margin: 0.5rem auto; /* 0.5rem arriba/abajo, auto izquierda/derecha */
+}
+
+.cardContent {
+  pointer-events: auto;
+}
+
+.dragHandle {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  cursor: grab;
+  padding: 4px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  pointer-events: all;
+}

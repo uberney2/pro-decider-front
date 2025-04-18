@@ -2,9 +2,10 @@
   padding: 1rem;
   background-color: #fff;
   min-height: 100vh;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
+/* Header y botón */
 .header {
   display: flex;
   justify-content: space-between;
@@ -21,6 +22,7 @@
   cursor: pointer;
 }
 
+/* Filtros */
 .filters {
   display: flex;
   gap: 2rem;
@@ -33,38 +35,60 @@
   gap: 0.3rem;
 }
 
+.filterItem input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Tarjeta contenedora del Kanban */
+.boardCard {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 7px 50px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+/* Contenedor flex de columnas */
 .kanban {
   display: flex;
   gap: 1rem;
 }
 
+/* Cada columna (rail) */
 .column {
   flex: 1;
-  background-color: #f9f9f9;
-  border-radius: 6px;
-  padding: 0.5rem;
+  background-color: #ececf3; /* color del rail */
+  border-radius: 8px;
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
 }
 
+/* Título de columna */
 .columnTitle {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 0.5rem;
 }
 
+/* Área donde van las cards */
 .columnBody {
-  min-height: 800px;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  flex: 1;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background-color: #fff;
+  gap: 0.75rem;
+  /* transparente para que se vea el color del rail */
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  min-height: 300px; /* ajusta según necesites */
 }
 
+/* Overlay al arrastrar */
 .dragOverlay {
-  /* Opcional: estilos para el overlay */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: scale(1.05);
 }

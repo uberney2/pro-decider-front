@@ -1,4 +1,3 @@
-// src/pages/PursuitsPage.tsx
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./PursuitsPage.module.css";
@@ -28,7 +27,6 @@ const PursuitsPage: React.FC = () => {
     (async () => {
       try {
         const data = await getProjects();
-        // Filtramos solo los proyectos con estado en KANBAN_STATUSES
         const filtered = data.filter((p) =>
           KANBAN_STATUSES.includes(p.status.trim() as ProjectStatus)
         );
@@ -49,7 +47,6 @@ const PursuitsPage: React.FC = () => {
     });
   }, [projects, searchName, searchBuOwner]);
 
-  // Agrupar proyectos por estado (normalizando el estado con trim)
   const columnsData = useMemo(() => {
     const result: Record<string, Project[]> = {};
     KANBAN_STATUSES.forEach((status) => {
@@ -58,7 +55,6 @@ const PursuitsPage: React.FC = () => {
     filteredProjects.forEach((p) => {
       const normalizedStatus = p.status.trim();
       if (!result[normalizedStatus]) {
-        console.warn(`Status "${p.status}" not recognized. Assigning to "Open".`);
         result["Open"].push(p);
       } else {
         result[normalizedStatus].push(p);
@@ -79,7 +75,6 @@ const PursuitsPage: React.FC = () => {
     const activeProject = projects.find((p) => p.id === active.id);
     if (!activeProject) return;
 
-    // over.id es el id del contenedor droppable, que definimos como el status
     const newStatus = (over.id as string).trim() as ProjectStatus;
     if (activeProject.status.trim() !== newStatus) {
       const updatedProject = { ...activeProject, status: newStatus };
@@ -98,7 +93,6 @@ const PursuitsPage: React.FC = () => {
     navigate("/pursuits/new");
   };
 
-  // Proyecto activo para el DragOverlay
   const activeProject = projects.find((p) => p.id === activeId) || null;
 
   return (
@@ -132,25 +126,29 @@ const PursuitsPage: React.FC = () => {
       </div>
 
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className={styles.kanban}>
-          {KANBAN_STATUSES.map((status) => {
-            const items = columnsData[status];
-            return (
-              <DroppableColumn key={status} status={status} items={items} />
-            );
-          })}
+        {/* Tarjeta contenedora del Kanban */}
+        <div className={styles.boardCard}>
+          <div className={styles.kanban}>
+            {KANBAN_STATUSES.map((status) => {
+              const items = columnsData[status];
+              return (
+                <DroppableColumn key={status} status={status} items={items} />
+              );
+            })}
+          </div>
         </div>
+
         <DragOverlay>
-          {activeProject ? (
+          {activeProject && (
             <div className={styles.dragOverlay}>
               <PursuitCard
                 project={activeProject}
-                onEdit={(projectId: string) => {
-                  navigate(`/pursuits/edit/${projectId}`);
-                }}
+                onEdit={(projectId: string) =>
+                  navigate(`/pursuits/edit/${projectId}`)
+                }
               />
             </div>
-          ) : null}
+          )}
         </DragOverlay>
       </DndContext>
     </div>
