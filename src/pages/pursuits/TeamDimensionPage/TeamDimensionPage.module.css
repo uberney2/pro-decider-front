@@ -1,135 +1,107 @@
-/* src/pages/pursuits/create-pursuit/TeamDimensionPage.module.css */
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-    background-color: #fff;
-    color: #333;
-    font-family: 'IBM Plex Mono', monospace;
-  }
-  
-  .tabs {
-    display: flex;
-    gap: 1rem;
-    border-bottom: 2px solid #ddd;
-    margin-bottom: 1rem;
-  }
-  
-  .tab {
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.3s ease;
-  }
-  
-  .tab:hover {
-    border-color: #aaa;
-  }
-  
-  .activeTab {
-    border-color: #000;
-    font-weight: bold;
-  }
-  
-  .sectionTitle {
-    font-size: 1.75rem;
-    margin-bottom: 1rem;
-    text-align: left;
-  }
-  
-  .subSectionTitle {
-    font-size: 1.25rem;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    color: #555;
-    text-align: left;
-  }
-  
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  
-  .formRow {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  
-  .formGroup {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .formGroup label {
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: #444;
-  }
-  
-  .formGroup input,
-  .formGroup select,
-  .formGroup textarea {
-    padding: 0.5rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .formGroup input:focus,
-  .formGroup select:focus,
-  .formGroup textarea:focus {
-    outline: none;
-    border-color: #6f43ff;
-    box-shadow: 0 0 0 2px rgba(111, 67, 255, 0.2);
-  }
-  
-  .error {
-    color: red;
-    font-size: 0.9rem;
-    margin-top: 0.25rem;
-  }
-  
-  .buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 2rem;
-  }
-  
-  .cancelButton {
-    background-color: transparent;
-    color: #555;
-    border: 1px solid #ccc;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .cancelButton:hover {
-    background-color: #f2f2f2;
-  }
-  
-  .saveButton {
-    background-color: #6f43ff;
-    color: #fff;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .saveButton:hover {
-    background-color: #5e3ad1;
-  }
-  
+/* ---------- contenedor general ---------- */
+.wrapper{
+  padding:2rem;
+  font-family:'IBM Plex Mono',monospace;
+  background:#fff;
+}
+
+.pageTitle{
+  font-size:1.5rem;
+  font-weight:700;
+  margin-bottom:1.2rem;
+}
+
+/* ---------- card ---------- */
+.card{
+  background:#fff;
+  border-radius:10px;
+  box-shadow:0 6px 18px rgba(0,0,0,.06);
+  padding:2rem;
+}
+
+/* ---------- subtítulos ---------- */
+.subTitle{
+  font-size:1rem;
+  font-weight:600;
+  margin:.5rem 0 1rem;
+}
+
+/* ---------- grid 3 columnas ---------- */
+.grid3{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1rem;
+  margin-bottom:2rem;
+}
+
+/* ---------- bloque Status ---------- */
+.statusGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1rem;
+  margin-bottom:2rem;
+}
+
+/* Observations debajo de Team Status en la misma columna */
+.below{
+  grid-column:1 / 2;
+  grid-row:2;
+}
+
+/* ---------- campos ---------- */
+.formGroup{ display:flex; flex-direction:column; }
+
+.formGroup label{
+  font-size:.85rem;
+  font-weight:600;
+  margin-bottom:.3rem;
+  color:#222;
+}
+
+.formGroup textarea,
+.formGroup input,
+.formGroup select{
+  padding:.55rem .75rem;
+  font-size:.9rem;
+  border:1px solid #dcdcdc;
+  border-radius:6px;
+  background:#f0f0f0;
+  color:#111;
+  resize:vertical;
+}
+
+.formGroup textarea:focus,
+.formGroup input:focus,
+.formGroup select:focus{
+  background:#fff;
+  border-color:#6f43ff;
+  box-shadow:0 0 0 2px rgba(111,67,255,.2);
+  outline:none;
+}
+
+/* ---------- botones ---------- */
+.buttons{
+  display:flex;
+  justify-content:flex-end;
+  gap:1rem;
+}
+
+.cancelBtn{
+  background:none;
+  color:#d22;
+  border:1px solid #d22;
+  border-radius:4px;
+  padding:.55rem 1.3rem;
+  cursor:pointer;
+}
+.cancelBtn:hover{ background:rgba(221,34,34,.05); }
+
+.saveBtn{
+  background:#6f43ff;
+  color:#fff;
+  border:none;
+  border-radius:4px;
+  padding:.55rem 1.8rem;
+  cursor:pointer;
+}
+.saveBtn:hover{ background:#5e3ad1; }
