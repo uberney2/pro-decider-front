@@ -20,10 +20,14 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className={styles.navbar}>
-      {/*  Logo / nombre de la aplicación  */}
       <span className={styles.brand}>Prodecider</span>
 
       <ul className={styles.navList}>
+      <li>
+          <NavLink to="/home" className={getLinkClass}>
+            Home
+          </NavLink>
+        </li>
         <li>
           <NavLink to="/accounts" className={getLinkClass}>
             Accounts
@@ -34,7 +38,7 @@ const Navbar: React.FC = () => {
             Pursuits
           </NavLink>
         </li>
-        {/*  Agrega más enlaces si lo deseas  */}
+        
         {token && (
           <li>
             <button onClick={handleLogout} className={styles.logoutButton}>
