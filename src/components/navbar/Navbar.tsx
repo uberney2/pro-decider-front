@@ -1,6 +1,5 @@
-// src/components/Navbar.tsx
 import React, { useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import styles from "./Navbar.module.css";
 import { AuthContext } from "../../context/AuthContext";
 
@@ -9,33 +8,35 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Cerrar sesión: borrar datos del contexto y del localStorage
     setAuthData(null);
     localStorage.removeItem("access_token");
     localStorage.removeItem("portfolio");
     navigate("/");
   };
 
+  /** función para asignar clases dinámicamente a NavLink */
+  const getLinkClass = ({ isActive }: { isActive: boolean }) =>
+    isActive ? `${styles.navLink} ${styles.active}` : styles.navLink;
+
   return (
     <nav className={styles.navbar}>
+      {/*  Logo / nombre de la aplicación  */}
+      <span className={styles.brand}>Prodecider</span>
+
       <ul className={styles.navList}>
-        <li className={styles.navItem}>
-          <Link to="/home" className={styles.navLink}>
-            Home
-          </Link>
-        </li>
-        <li className={styles.navItem}>
-          <Link to="/accounts" className={styles.navLink}>
+        <li>
+          <NavLink to="/accounts" className={getLinkClass}>
             Accounts
-          </Link>
+          </NavLink>
         </li>
-        <li className={styles.navItem}>
-          <Link to="/pursuits" className={styles.navLink}>
+        <li>
+          <NavLink to="/pursuits" className={getLinkClass}>
             Pursuits
-          </Link>
+          </NavLink>
         </li>
+        {/*  Agrega más enlaces si lo deseas  */}
         {token && (
-          <li className={styles.navItem}>
+          <li>
             <button onClick={handleLogout} className={styles.logoutButton}>
               Logout
             </button>

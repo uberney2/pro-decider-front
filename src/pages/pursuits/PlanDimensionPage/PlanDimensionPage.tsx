@@ -3,15 +3,14 @@ import React, { useState, useEffect } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./PlanDimensionPage.module.css";
-import { 
-  getPlanDimension, 
-  createPlanDimension, 
-  updatePlanDimension 
+
+import {
+  getPlanDimension,
+  createPlanDimension,
+  updatePlanDimension,
 } from "../../../service/projectService";
 import { PlanDimension } from "../../../types/PlanDimension";
 import { OutletContextProps } from "../edit-pursuit/EditPursuitPageContainer";
-
-// Importaciones para Toastify
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -30,76 +29,47 @@ const PlanDimensionPage: React.FC = () => {
     observations: "",
   });
 
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
-
   useEffect(() => {
     if (projectId) {
       getPlanDimension(projectId)
-        .then((data) => {
-          if (data && data.id) {
-            setPlanData(data);
-          }
-        })
-        .catch((err) => {
-          console.warn("No plan dimension data found, initializing empty.", err);
-        });
+        .then((data) => data?.id && setPlanData(data))
+        .catch((err) => console.warn("No plan dimension data found", err));
     }
   }, [projectId]);
 
-  const handleChange = (field: keyof PlanDimension, value: string) => {
+  const handleChange = (field: keyof PlanDimension, value: string) =>
     setPlanData({ ...planData, [field]: value });
-  };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setMessage("");
-
-    if (!projectId) {
-      const errMsg = "No project ID found.";
-      setError(errMsg);
-      toast.error(errMsg);
-      return;
-    }
+    if (!projectId) return toast.error("No project ID found.");
 
     try {
       if (planData.id) {
-        // Actualizamos la dimensión si ya existe un ID
         await updatePlanDimension(projectId, planData.id, planData);
         toast.success("Plan dimension updated successfully!");
       } else {
-        // De lo contrario creamos una nueva dimensión
-        const newId = uuidv4();
-        const newData: PlanDimension = { ...planData, id: newId };
-        await createPlanDimension(projectId, newData);
-        setPlanData(newData);
-        setMessage("Plan dimension created successfully.");
+        const payload = { ...planData, id: uuidv4() };
+        await createPlanDimension(projectId, payload);
+        setPlanData(payload);
         toast.success("Plan dimension created successfully!");
       }
     } catch (err: any) {
-      console.error("Error saving plan dimension:", err);
-      const errMsg = "Error saving plan dimension: " + err.message;
-      setError(errMsg);
-      toast.error(errMsg);
+      toast.error("Error saving plan dimension: " + err.message);
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = () =>
     navigate("/pursuits/edit/" + projectId + "/details", { state: { projectId } });
-  };
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.sectionTitle}>Plan Dimension</h2>
+    <div className={styles.wrapper}>
+      <h2 className={styles.pageTitle}>Plan Dimension</h2>
 
-      {/* Mensajes en pantalla (opcional si deseas mostrarlos además de los toasts) */}
-      {error && <p className={styles.error}>{error}</p>}
-      {message && <p className={styles.success}>{message}</p>}
-
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <h3 className={styles.subSectionTitle}>Plan Information</h3>
-        <div className={styles.formRow}>
+      <form className={styles.card} onSubmit={handleSubmit}>
+        {/* ---------- Plan information ---------- */}
+        <h3 className={styles.subTitle}>Plan Information</h3>
+        <div className={styles.grid3}>
           <div className={styles.formGroup}>
             <label>Backlog Responsible</label>
             <textarea
@@ -107,6 +77,7 @@ const PlanDimensionPage: React.FC = () => {
               onChange={(e) => handleChange("backlogResponsible", e.target.value)}
             />
           </div>
+
           <div className={styles.formGroup}>
             <label>Road Map</label>
             <textarea
@@ -114,6 +85,7 @@ const PlanDimensionPage: React.FC = () => {
               onChange={(e) => handleChange("roadMap", e.target.value)}
             />
           </div>
+
           <div className={styles.formGroup}>
             <label>Deliverables and Timelines</label>
             <textarea
@@ -123,8 +95,9 @@ const PlanDimensionPage: React.FC = () => {
           </div>
         </div>
 
-        <h3 className={styles.subSectionTitle}>Status Information</h3>
-        <div className={styles.formRow}>
+        {/* ---------- Status information ---------- */}
+        <h3 className={styles.subTitle}>Status Information</h3>
+        <div className={styles.statusGrid}>
           <div className={styles.formGroup}>
             <label>Plan Status</label>
             <select
@@ -132,13 +105,12 @@ const PlanDimensionPage: React.FC = () => {
               onChange={(e) => handleChange("status", e.target.value)}
             >
               {STATUS_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
+                <option key={opt}>{opt}</option>
               ))}
             </select>
           </div>
-          <div className={styles.formGroup}>
+
+          <div className={`${styles.formGroup} ${styles.below}`}>
             <label>Plan Observations</label>
             <textarea
               value={planData.observations}
@@ -147,28 +119,18 @@ const PlanDimensionPage: React.FC = () => {
           </div>
         </div>
 
+        {/* ---------- Botones ---------- */}
         <div className={styles.buttons}>
-          <button type="button" onClick={handleCancel} className={styles.cancelButton}>
+          <button type="button" className={styles.cancelBtn} onClick={handleCancel}>
             Cancel
           </button>
-          <button type="submit" className={styles.saveButton}>
+          <button type="submit" className={styles.saveBtn}>
             Save &amp; continue
           </button>
         </div>
       </form>
 
-      {/* Contenedor de Toastify para mostrar los toasts */}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

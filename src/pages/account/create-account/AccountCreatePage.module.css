@@ -1,118 +1,164 @@
-/* src/pages/AccountCreatePage.module.css */
-.container {
-    padding: 1.5rem 2rem;
-    background-color: #fff;
-    color: #333;
-    min-height: 100vh;
-    font-family: "Arial", sans-serif;
-  }
+/* Fondo de página */
+.pageContainer {
+  background-color: #f5f7fa;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  font-family: 'IBM Plex Mono', monospace;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* Card principal */
+.card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 100%;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.tab {
+  background: transparent;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.3s;
+}
+
+.tab:hover {
+  border-bottom-color: #ccc;
+}
+
+.activeTab {
+  border-bottom-color: #000;
   
-  /* Tabs */
-  .tabs {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .tab {
-    background-color: transparent;
-    border: none;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.3s ease;
-  }
-  
-  .tab:hover {
-    border-bottom: 2px solid #ccc;
-  }
-  
-  .activeTab {
-    border-bottom: 2px solid #000;
-  }
-  
-  /* Sección Título */
-  .sectionTitle {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  /* Formulario */
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-  
-  .formGroup {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-  
-  .label {
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: #555;
-  }
-  
-  .input,
-  .select {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 0.5rem;
-    font-size: 1rem;
-  }
-  
-  .textarea {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 0.5rem;
-    font-size: 1rem;
-    resize: vertical;
-  }
-  
-  .error {
-    color: red;
-    margin-top: -0.5rem;
-    font-weight: 500;
-  }
-  
-  /* Botones */
-  .buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-  }
-  
-  .cancelButton {
-    background-color: transparent;
-    color: #555;
-    border: 1px solid #ccc;
-    padding: 0.6rem 1.2rem;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-  }
-  
-  .cancelButton:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .saveButton {
-    background-color: #6f43ff;
-    color: #fff;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-  }
-  
-  .saveButton:hover {
-    background-color: #5e3ad1;
-  }
-  
+}
+
+/* Título de sección */
+.sectionTitle {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Grid de la primera fila */
+.row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Formulario */
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  position: relative;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+/* Hint de read-only */
+.readOnlyHint {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+/* Inputs y select superpuesto invisible */
+.input,
+.textarea {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.6rem;
+  font-size: 1rem;
+  color: #333;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+/* Para el select lo hacemos invisible pero área clicable encima */
+.selectOverlay {
+  position: absolute;
+  top: 1.8rem; /* ajusta según padding */
+  left: 0;
+  width: 100%;
+  height: 2.6rem;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Textarea */
+.textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Mensajes de error */
+.error {
+  color: #ff4d4f;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+/* Botones */
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.cancelButton {
+  background-color: transparent;
+  color: #ff4d4f;
+  border: 1px solid #ff4d4f;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.cancelButton:hover {
+  background-color: rgba(255, 77, 79, 0.1);
+}
+
+.saveButton {
+  background-color: #6f43ff;
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.saveButton:hover {
+  background-color: #5e3ad1;
+}

@@ -3,15 +3,14 @@ import React, { useState, useEffect } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./TeamDimensionPage.module.css";
-import { 
-  getTeamDimension, 
-  createTeamDimension, 
-  updateTeamDimension 
+
+import {
+  getTeamDimension,
+  createTeamDimension,
+  updateTeamDimension,
 } from "../../../service/projectService";
 import { TeamDimension } from "../../../types/TeamDimension";
 import { OutletContextProps } from "../edit-pursuit/EditPursuitPageContainer";
-
-// Importaciones de React Toastify
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -30,76 +29,49 @@ const TeamDimensionPage: React.FC = () => {
     status: "Not Defined",
     observations: "",
   });
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (projectId) {
       getTeamDimension(projectId)
-        .then((data) => {
-          if (data && data.id) {
-            setTeamData(data);
-          }
-        })
-        .catch((err) => {
-          console.warn("No team dimension data found, initializing empty.", err);
-        });
+        .then((data) => data?.id && setTeamData(data))
+        .catch((err) => console.warn("No team dimension data found", err));
     }
   }, [projectId]);
 
-  const handleChange = (field: keyof TeamDimension, value: string) => {
+  const handleChange = (field: keyof TeamDimension, value: string) =>
     setTeamData({ ...teamData, [field]: value });
-  };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setMessage("");
-
-    if (!projectId) {
-      const errMsg = "No project ID found.";
-      setError(errMsg);
-      toast.error(errMsg);
-      return;
-    }
+    if (!projectId) return toast.error("No project ID found.");
 
     try {
       if (teamData.id) {
-        // Actualizar dimensión existente
         await updateTeamDimension(projectId, teamData.id, teamData);
         toast.success("Team dimension updated successfully!");
       } else {
-        // Crear nueva dimensión
-        const newId = uuidv4();
-        const newData: TeamDimension = { ...teamData, id: newId };
+        const newData = { ...teamData, id: uuidv4() };
         await createTeamDimension(projectId, newData);
         setTeamData(newData);
-        setMessage("Team dimension created successfully.");
         toast.success("Team dimension created successfully!");
       }
     } catch (err: any) {
-      const errMsg = "Error saving team dimension: " + err.message;
-      console.error(errMsg);
-      setError(errMsg);
-      toast.error(errMsg);
+      toast.error("Error saving team dimension: " + err.message);
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = () =>
     navigate("/pursuits/edit/" + projectId + "/details", { state: { projectId } });
-  };
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.sectionTitle}>Team Dimension</h2>
+    <div className={styles.wrapper}>
+      <h2 className={styles.pageTitle}>Team Dimension</h2>
 
-      {/* Mensajes en pantalla (opcional si todavía se desea mostrar) */}
-      {error && <p className={styles.error}>{error}</p>}
-      {message && <p className={styles.success}>{message}</p>}
+      <form className={styles.card} onSubmit={handleSubmit}>
+        {/* ---------- Team composition risk ---------- */}
+        <h3 className={styles.subTitle}>Team Composition Risk</h3>
 
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <h3 className={styles.subSectionTitle}>Team Composition Risk</h3>
-        <div className={styles.formRow}>
+        <div className={styles.grid3}>
           <div className={styles.formGroup}>
             <label>Composition</label>
             <textarea
@@ -107,6 +79,7 @@ const TeamDimensionPage: React.FC = () => {
               onChange={(e) => handleChange("composition", e.target.value)}
             />
           </div>
+
           <div className={styles.formGroup}>
             <label>Team Configuration</label>
             <textarea
@@ -114,6 +87,7 @@ const TeamDimensionPage: React.FC = () => {
               onChange={(e) => handleChange("teamConfiguration", e.target.value)}
             />
           </div>
+
           <div className={styles.formGroup}>
             <label>English Level Required</label>
             <textarea
@@ -121,6 +95,8 @@ const TeamDimensionPage: React.FC = () => {
               onChange={(e) => handleChange("englishLevel", e.target.value)}
             />
           </div>
+
+          {/* Expected Deploy Date alineado en la columna 1 */}
           <div className={styles.formGroup}>
             <label>Expected Deploy Date</label>
             <input
@@ -131,8 +107,9 @@ const TeamDimensionPage: React.FC = () => {
           </div>
         </div>
 
-        <h3 className={styles.subSectionTitle}>Status Information</h3>
-        <div className={styles.formRow}>
+        {/* ---------- Status information ---------- */}
+        <h3 className={styles.subTitle}>Status Information</h3>
+        <div className={styles.statusGrid}>
           <div className={styles.formGroup}>
             <label>Team Status</label>
             <select
@@ -140,13 +117,12 @@ const TeamDimensionPage: React.FC = () => {
               onChange={(e) => handleChange("status", e.target.value)}
             >
               {STATUS_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
+                <option key={opt}>{opt}</option>
               ))}
             </select>
           </div>
-          <div className={styles.formGroup}>
+
+          <div className={`${styles.formGroup} ${styles.below}`}>
             <label>Team Observations</label>
             <textarea
               value={teamData.observations}
@@ -156,27 +132,16 @@ const TeamDimensionPage: React.FC = () => {
         </div>
 
         <div className={styles.buttons}>
-          <button type="button" onClick={handleCancel} className={styles.cancelButton}>
+          <button type="button" className={styles.cancelBtn} onClick={handleCancel}>
             Cancel
           </button>
-          <button type="submit" className={styles.saveButton}>
+          <button type="submit" className={styles.saveBtn}>
             Save &amp; continue
           </button>
         </div>
       </form>
 
-      {/* ToastContainer para mostrar los mensajes de react-toastify */}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };
