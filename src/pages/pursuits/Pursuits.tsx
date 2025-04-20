@@ -1,7 +1,13 @@
+// src/pages/pursuits/PursuitsPage.tsx
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./PursuitsPage.module.css";
-import { DndContext, DragEndEvent, DragStartEvent, DragOverlay } from "@dnd-kit/core";
+import {
+  DndContext,
+  DragStartEvent,
+  DragEndEvent,
+  DragOverlay,
+} from "@dnd-kit/core";
 import { getProjects, updateProject } from "../../service/projectService";
 import { Project, ProjectStatus } from "../../types/Project";
 import { DroppableColumn } from "./DroppableColumn";
@@ -20,9 +26,9 @@ const PursuitsPage: React.FC = () => {
   const [searchName, setSearchName] = useState("");
   const [searchBuOwner, setSearchBuOwner] = useState("");
   const [activeId, setActiveId] = useState<string | null>(null);
-
   const navigate = useNavigate();
 
+  // Carga inicial de proyectos
   useEffect(() => {
     (async () => {
       try {
@@ -37,9 +43,12 @@ const PursuitsPage: React.FC = () => {
     })();
   }, []);
 
+  // Filtros de búsqueda
   const filteredProjects = useMemo(() => {
     return projects.filter((p) => {
-      const matchesName = p.name.toLowerCase().includes(searchName.toLowerCase());
+      const matchesName = p.name
+        .toLowerCase()
+        .includes(searchName.toLowerCase());
       const matchesBuOwner = p.account.buOwner.name
         .toLowerCase()
         .includes(searchBuOwner.toLowerCase());
@@ -47,17 +56,18 @@ const PursuitsPage: React.FC = () => {
     });
   }, [projects, searchName, searchBuOwner]);
 
+  // Organiza los proyectos por columna
   const columnsData = useMemo(() => {
     const result: Record<string, Project[]> = {};
     KANBAN_STATUSES.forEach((status) => {
       result[status] = [];
     });
     filteredProjects.forEach((p) => {
-      const normalizedStatus = p.status.trim();
-      if (!result[normalizedStatus]) {
-        result["Open"].push(p);
+      const norm = p.status.trim();
+      if (!(norm in result)) {
+        result[ProjectStatus.OPEN].push(p);
       } else {
-        result[normalizedStatus].push(p);
+        result[norm].push(p);
       }
     });
     return result;
@@ -72,10 +82,25 @@ const PursuitsPage: React.FC = () => {
     setActiveId(null);
     if (!over || active.id === over.id) return;
 
+    // 1) Encuentra el proyecto que se está arrastrando
     const activeProject = projects.find((p) => p.id === active.id);
     if (!activeProject) return;
 
-    const newStatus = (over.id as string).trim() as ProjectStatus;
+    // 2) Determinar nuevo status
+    const overId = (over.id as string).trim();
+    let newStatus: ProjectStatus;
+
+    if (KANBAN_STATUSES.includes(overId as ProjectStatus)) {
+      // Caso: soltado sobre el "riel" (columna)
+      newStatus = overId as ProjectStatus;
+    } else {
+      // Caso: soltado sobre otra tarjeta -> busco su proyecto y tomo su status
+      const overProject = projects.find((p) => p.id === overId);
+      if (!overProject) return;
+      newStatus = overProject.status.trim() as ProjectStatus;
+    }
+
+    // 3) Si cambia el status, actualizo UI y llamo al backend
     if (activeProject.status.trim() !== newStatus) {
       const updatedProject = { ...activeProject, status: newStatus };
       setProjects((prev) =>
@@ -93,13 +118,17 @@ const PursuitsPage: React.FC = () => {
     navigate("/pursuits/new");
   };
 
-  const activeProject = projects.find((p) => p.id === activeId) || null;
+  const activeProject =
+    projects.find((p) => p.id === activeId) || null;
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <h1>Pursuits</h1>
-        <button className={styles.newPursuitButton} onClick={handleNewPursuit}>
+        <button
+          className={styles.newPursuitButton}
+          onClick={handleNewPursuit}
+        >
           New Pursuit
         </button>
       </header>
@@ -125,16 +154,20 @@ const PursuitsPage: React.FC = () => {
         </div>
       </div>
 
-      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        {/* Tarjeta contenedora del Kanban */}
+      <DndContext
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        {/* Contenedor principal del Kanban */}
         <div className={styles.boardCard}>
           <div className={styles.kanban}>
-            {KANBAN_STATUSES.map((status) => {
-              const items = columnsData[status];
-              return (
-                <DroppableColumn key={status} status={status} items={items} />
-              );
-            })}
+            {KANBAN_STATUSES.map((status) => (
+              <DroppableColumn
+                key={status}
+                status={status}
+                items={columnsData[status]}
+              />
+            ))}
           </div>
         </div>
 
@@ -143,9 +176,7 @@ const PursuitsPage: React.FC = () => {
             <div className={styles.dragOverlay}>
               <PursuitCard
                 project={activeProject}
-                onEdit={(projectId: string) =>
-                  navigate(`/pursuits/edit/${projectId}`)
-                }
+                onEdit={(id) => navigate(`/pursuits/edit/${id}`)}
               />
             </div>
           )}
