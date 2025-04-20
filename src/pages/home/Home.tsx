@@ -86,7 +86,7 @@ const Dashboard: React.FC = () => {
           <p>{totalAccounts}</p>
         </div>
         <div className={styles.card}>
-          <h3>Total projects</h3>
+          <h3>Total pursuits</h3>
           <p>{totalProjects}</p>
         </div>
         <div className={styles.card}>
