@@ -34,6 +34,7 @@ export interface Project {
     ENGINEERING_REVIEW = "Engineering Review",
     IN_VALIDATION = "In Validation",
     CANCELLED = "Cancelled",
+    EXECUTION = 'Execution'
   }
 
   export type DimensionStatus = "Good" | "Warning" | "Bad" | "Not Defined";
