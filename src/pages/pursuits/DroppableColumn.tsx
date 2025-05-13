@@ -1,4 +1,5 @@
-// src/pages/DroppableColumn.tsx
+// src/pages/pursuits/DroppableColumn.tsx
+
 import React from "react";
 import { useDroppable } from "@dnd-kit/core";
 import {
@@ -20,8 +21,18 @@ export const DroppableColumn: React.FC<DroppableColumnProps> = ({
 }) => {
   const { setNodeRef } = useDroppable({ id: status });
 
+  const extraClass =
+    status === ProjectStatus.EXECUTION
+      ? styles.executionColumn
+      : status === ProjectStatus.CANCELLED
+      ? styles.cancelledColumn
+      : "";
+
   return (
-    <div ref={setNodeRef} className={styles.column}>
+    <div
+      ref={setNodeRef}
+      className={`${styles.column} ${extraClass}`}
+    >
       <h2 className={styles.columnTitle}>
         {status} ({items.length})
       </h2>
