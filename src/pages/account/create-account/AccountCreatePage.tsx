@@ -1,4 +1,5 @@
-// src/pages/account/create-account/AccountCreatePage.tsx
+
+
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -6,7 +7,7 @@ import styles from "./AccountCreatePage.module.css";
 import { getBuOwners } from "../../../service/buOwnerService";
 import { createAccount } from "../../../service/accountService";
 import { AuthContext } from "../../../context/AuthContext";
-import { Account, BuOwner } from "../../../types/Account";
+import { Account, BuOwner, Portfolio } from "../../../types/Account";  // <-- added Portfolio
 
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -15,7 +16,7 @@ import KeyPeopleForm from "../key-people/AccountKeyPeopleForm";
 const AccountCreatePage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { portfolio } = useContext(AuthContext);
+  const { portfolio: ctxPortfolio } = useContext(AuthContext);
 
   // Campos para Details
   const [name, setName] = useState("");
@@ -24,10 +25,16 @@ const AccountCreatePage: React.FC = () => {
   const [strategy, setStrategy] = useState("");
   const [error, setError] = useState("");
 
-  // Para almacenar el objeto de BU de la cuenta seleccionada (usado para el campo readOnly)
+
   const [accountData, setAccountData] = useState<{ buOwnerName: string } | null>(null);
 
-  // Cargar BU Owners al montar
+
+  const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
+  const [selectedPortfolioId, setSelectedPortfolioId] = useState("");
+  const [portfolioData, setPortfolioData] = useState<{ portfolioName: string } | null>(null);
+
+
+ 
   useEffect(() => {
     (async () => {
       try {
@@ -40,6 +47,22 @@ const AccountCreatePage: React.FC = () => {
     })();
   }, []);
 
+ 
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/portfolio");
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        const data: Portfolio[] = await res.json();
+        setPortfolios(data);
+      } catch (err: any) {
+        console.error("Error fetching portfolios:", err);
+        toast.error("Error fetching portfolios: " + err.message);
+      }
+    })();
+  }, []);
+  // ----------------------------------
+
   const handleBuOwnerChange = (value: string) => {
     setSelectedBuOwnerId(value);
     const selectedBU = buOwners.find((bu) => bu.id === value);
@@ -50,20 +73,36 @@ const AccountCreatePage: React.FC = () => {
     }
   };
 
+  // — NEW: manejar selección de Portfolio —
+  const handlePortfolioChange = (value: string) => {
+    setSelectedPortfolioId(value);
+    const sel = portfolios.find((p) => p.id === value);
+    if (sel) {
+      setPortfolioData({ portfolioName: sel.name });
+    } else {
+      setPortfolioData(null);
+    }
+  };
+  // --------------------------------------
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
-    if (!portfolio) {
-      setError("No portfolio information found. Please log in again.");
-      toast.error("No portfolio information found. Please log in again.");
-      return;
-    }
+    // validar BU Owner
     if (!selectedBuOwnerId || !accountData) {
       setError("Please select a valid BU Owner.");
       toast.error("Please select a valid BU Owner.");
       return;
     }
+
+    // — NEW: validar Portfolio seleccionado —
+    if (!selectedPortfolioId || !portfolioData) {
+      setError("Please select a valid Portfolio.");
+      toast.error("Please select a valid Portfolio.");
+      return;
+    }
+   
 
     const accountId = uuidv4();
     const newAccount: Account = {
@@ -73,9 +112,10 @@ const AccountCreatePage: React.FC = () => {
         id: selectedBuOwnerId,
         name: accountData.buOwnerName,
       },
+      
       portfolio: {
-        id: portfolio.id,
-        name: portfolio.name,
+        id: selectedPortfolioId,
+        name: portfolioData.portfolioName,
       },
       status: "active",
       strategy,
@@ -143,8 +183,7 @@ const AccountCreatePage: React.FC = () => {
                       className={styles.input}
                       required
                     />
-                    <small className={styles.readOnlyHint}>
-                    </small>
+                    <small className={styles.readOnlyHint}></small>
                   </div>
 
                   {/* BU Owner */}
@@ -175,7 +214,7 @@ const AccountCreatePage: React.FC = () => {
                     </select>
                   </div>
 
-                  {/* Portfolio */}
+                  {/* Portfolio (dropdown igual a BU Owner) */}
                   <div className={styles.formGroup}>
                     <label htmlFor="portfolio" className={styles.label}>
                       Portfolio
@@ -183,10 +222,24 @@ const AccountCreatePage: React.FC = () => {
                     <input
                       id="portfolio"
                       type="text"
-                      value={portfolio ? portfolio.name : "No Portfolio"}
+                      value={portfolioData ? portfolioData.portfolioName : ""}
                       readOnly
                       className={styles.input}
+                      placeholder="Select Portfolio"
                     />
+                    <select
+                      className={styles.selectOverlay}
+                      value={selectedPortfolioId}
+                      onChange={(e) => handlePortfolioChange(e.target.value)}
+                      required
+                    >
+                      <option value="">-- Select a Portfolio --</option>
+                      {portfolios.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
