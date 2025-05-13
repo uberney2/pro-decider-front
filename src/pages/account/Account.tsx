@@ -11,6 +11,7 @@ import { Account } from "../../types/Account";
 import { getAccounts } from "../../service/accountService";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 
 const AccountsPage: React.FC = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -21,6 +22,36 @@ const AccountsPage: React.FC = () => {
     pageIndex: 0,
     pageSize: 10,
   });
+
+  // --- Estado y funciones para el modal de Portfolio ---
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newPortfolioName, setNewPortfolioName] = useState("");
+
+  const openCreateModal = () => setShowCreateModal(true);
+  const closeCreateModal = () => {
+    setShowCreateModal(false);
+    setNewPortfolioName("");
+  };
+
+  const handleSavePortfolio = async () => {
+    if (!newPortfolioName.trim()) return;
+    const payload = {
+      id: uuidv4(),
+      name: newPortfolioName.trim(),
+    };
+    try {
+      const res = await fetch("http://localhost:8080/api/portfolio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      closeCreateModal();
+      window.location.reload();
+    } catch (err) {
+      console.error("Error creating portfolio:", err);
+    }
+  };
 
   const { portfolio } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -104,10 +135,39 @@ const AccountsPage: React.FC = () => {
       <div className={styles.card}>
         <header className={styles.header}>
           <h1 className={styles.portfolioTitle}>{portfolioName}</h1>
-          <button className={styles.newAccountButton} onClick={handleNewAccount}>
-            New Account
-          </button>
+          <div className={styles.headerButtons}>
+            <button
+              className={styles.createPortfolioButton}
+              onClick={openCreateModal}
+            >
+              Create Portfolio
+            </button>
+            <button
+              className={styles.newAccountButton}
+              onClick={handleNewAccount}
+            >
+              New Account
+            </button>
+          </div>
         </header>
+
+        {showCreateModal && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modal}>
+              <h2>Create Portfolio</h2>
+              <input
+                type="text"
+                placeholder="Portfolio name"
+                value={newPortfolioName}
+                onChange={(e) => setNewPortfolioName(e.target.value)}
+              />
+              <div className={styles.modalActions}>
+                <button onClick={handleSavePortfolio}>Save</button>
+                <button onClick={closeCreateModal}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className={styles.filters}>
           <div className={styles.filterItem}>
@@ -145,9 +205,9 @@ const AccountsPage: React.FC = () => {
         <div className={styles.tableContainer}>
           <table className={styles.table}>
             <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
+              {table.getHeaderGroups().map((hg) => (
+                <tr key={hg.id}>
+                  {hg.headers.map((header) => (
                     <th key={header.id}>
                       {header.isPlaceholder
                         ? null
