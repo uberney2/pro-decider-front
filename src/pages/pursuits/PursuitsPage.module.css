@@ -1,3 +1,5 @@
+/* src/pages/pursuits/PursuitsPage.module.css */
+
 .container {
   padding: 1rem;
   background-color: #fff;
@@ -20,7 +22,7 @@
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 /* Filtros */
@@ -28,7 +30,6 @@
   display: flex;
   gap: 2rem;
   margin-bottom: 1rem;
-  
 }
 
 .filterItem {
@@ -41,7 +42,7 @@
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 /* Tarjeta contenedora del Kanban */
@@ -62,7 +63,7 @@
 /* Cada columna (rail) */
 .column {
   flex: 1;
-  background-color: #ececf3; /* color del rail */
+  background-color: #ececf3; /* color del rail por defecto */
   border-radius: 8px;
   padding: 0.75rem;
   display: flex;
@@ -83,15 +84,78 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  /* transparente para que se vea el color del rail */
   background-color: transparent;
   border: none;
   padding: 0;
-  min-height: 300px; /* ajusta según necesites */
+  min-height: 300px;
 }
 
 /* Overlay al arrastrar */
 .dragOverlay {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
   transform: scale(1.05);
+}
+
+/* --- Nuevas reglas de color, deben ir *después* de .column --- */
+.executionColumn {
+  background-color: #e6ffed; /* verde claro */
+}
+
+.cancelledColumn {
+  background-color: #ffe6e6; /* rojo claro */
+}
+
+/* --- Modal de confirmación (sin cambios) --- */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1.5rem 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.confirmButton {
+  background-color: #d9534f;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.confirmButton:hover {
+  background-color: #c9302c;
+}
+
+.modalCancelButton {
+  background: none;
+  color: #555;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.modalCancelButton:hover {
+  color: #000;
 }
